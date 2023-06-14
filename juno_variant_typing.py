@@ -17,9 +17,11 @@ from juno_library import Pipeline
 from typing import Optional, Union, Callable
 from version import __package_name__, __version__, __description__
 
+
 def main() -> None:
     juno_variant_typing = JunoVariantTyping()
     juno_variant_typing.run()
+
 
 def check_number_within_range(
     minimum: float = 0, maximum: float = 1
@@ -63,8 +65,10 @@ class JunoVariantTyping(Pipeline):
     def _add_args_to_parser(self) -> None:
         super()._add_args_to_parser()
 
-        self.parser.description = "Juno variant typing pipeline for interpretation of genomic variants"
-        
+        self.parser.description = (
+            "Juno variant typing pipeline for interpretation of genomic variants"
+        )
+
         self.add_argument(
             "-m",
             "--metadata",
@@ -103,7 +107,6 @@ class JunoVariantTyping(Pipeline):
             help="Relative or absolute path to the directory that contains the databases for all the tools used in this pipeline or where they should be downloaded. Default is: /mnt/db/juno/variant_typing_db",
         )
 
-        
     def _parse_args(self) -> argparse.Namespace:
         args = super()._parse_args()
 
@@ -116,7 +119,7 @@ class JunoVariantTyping(Pipeline):
         self.metadata_file: Path = args.metadata
 
         return args
-    
+
     # # Extra class methods for this pipeline can be defined here
     # def example_class_method(self):
     #     print(f"example option is set to {self.example}")
@@ -129,7 +132,7 @@ class JunoVariantTyping(Pipeline):
             self.snakemake_args["singularity_args"] = " ".join(
                 [
                     self.snakemake_args["singularity_args"]
-                ] # paths that singularity should be able to read from can be bound by adding to the above list
+                ]  # paths that singularity should be able to read from can be bound by adding to the above list
             )
 
         # # Extra class methods for this pipeline can be invoked here

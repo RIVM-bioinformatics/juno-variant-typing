@@ -18,6 +18,7 @@ localrules:
     aggregate_species,
 
 include: "workflow/rules/choose_species.smk"
+include: "workflow/rules/mtb_prepare_files.smk"
 include: "workflow/rules/mtb_typing.smk"
 
 

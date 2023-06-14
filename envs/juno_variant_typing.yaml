@@ -1,4 +1,4 @@
-name: juno_template
+name: juno_variant_typing
 channels:
   - conda-forge
   - bioconda
@@ -13,4 +13,4 @@ dependencies:
   - pip=23.*
   - python=3.11.*
   - pip:
-    - "--editable=git+https://github.com/RIVM-bioinformatics/juno-library.git@v2.0.0#egg=juno_library"
+    - "--editable=git+https://github.com/RIVM-bioinformatics/juno-library.git@add_vcf#egg=juno_library"

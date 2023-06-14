@@ -104,7 +104,9 @@ class JunoVariantTyping(Pipeline):
             required=False,
             metavar="DIR",
             default="/mnt/db/juno/variant_typing_db",
-            help="Relative or absolute path to the directory that contains the databases for all the tools used in this pipeline or where they should be downloaded. Default is: /mnt/db/juno/variant_typing_db",
+            help="Relative or absolute path to the directory that contains the"
+            " databases for all the tools used in this pipeline or where they"
+            " should be downloaded. Default is: /mnt/db/juno/variant_typing_db",
         )
 
     def _parse_args(self) -> argparse.Namespace:

@@ -1,0 +1,6 @@
+mycobacterium_tuberculosis: 
+  single_copy_bed: files/mtb/coll_positions.bed
+  resistance_positions: /mnt/db/juno/variant-typing/mtb/resistentielijst.csv
+other:
+  single_copy_bed: null
+  resistance_positions: null

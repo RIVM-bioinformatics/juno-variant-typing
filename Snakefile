@@ -17,6 +17,11 @@ OUT = config["output_dir"]
 localrules:
     all,
     aggregate_species,
+    copy_sample_bam,
+    copy_ref,
+    prepare_ab_table,
+    generate_ab_table_header,
+    mtb_filter_res_table_positions,
 
 
 include: "workflow/rules/choose_species.smk"

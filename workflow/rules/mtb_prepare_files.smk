@@ -16,6 +16,8 @@ rule index_sample_bam:
         bam=OUT + "/mtb_typing/prepared_files/{sample}.bam",
     output:
         bai=temp(OUT + "/mtb_typing/prepared_files/{sample}.bam.bai"),
+    container:
+        "docker://staphb/samtools:1.17"
     conda:
         "../envs/gatk_picard.yaml"
     log:
@@ -118,6 +120,8 @@ rule prepare_snpeff_config:
         config=temp(OUT + "/mtb_typing/prepared_reference_data/{sample}/snpeff.config"),
     conda:
         "../envs/biopython.yaml"
+    container:
+        "docker://pegi3s/biopython:1.78"
     log:
         OUT + "/log/prepare_snpeff_config/{sample}.log",
     shell:
@@ -137,6 +141,8 @@ rule build_snpeff_db:
         touch(OUT + "/mtb_typing/prepared_reference_data/{sample}/build_snpeff_db.done"),
     conda:
         "../envs/snpeff.yaml"
+    container:
+        "docker://staphb/snpeff:5.1"
     log:
         OUT + "/log/build_snpeff_db/{sample}.log",
     shell:
@@ -185,6 +191,8 @@ rule compress_index_ab_table:
         index=OUT + "/mtb_typing/prepared_reference_data/{sample}/ab_table.tab.gz.tbi",
     conda:
         "../envs/bcftools.yaml"
+    container:
+        "docker://staphb/bcftools:1.16"
     log:
         OUT + "/log/compress_index_ab_table/{sample}.log",
     shell:

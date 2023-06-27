@@ -5,6 +5,8 @@ rule mtb_lineage_id:
         tsv=OUT + "/mtb_typing/lineage_call/{sample}.tsv",
     conda:
         "../envs/fast_lineage_caller.yaml"
+    container:
+        "docker://ghcr.io/boasvdp/fast_lineage_caller:1.0.0"
     log:
         OUT + "/log/mtb_lineage_id/{sample}.log",
     message:
@@ -33,6 +35,8 @@ rule mtb_coll_contamination:
         tsv=OUT + "/mtb_typing/contamination_check/coll_positions/{sample}.tsv",
     conda:
         "../envs/gatk_picard.yaml"
+    container:
+        "docker://broadinstitute/gatk:4.3.0.0"
     log:
         OUT + "/log/mtb_typing/mtb_coll_contamination/{sample}.log",
     shell:
@@ -53,6 +57,8 @@ rule mtb_rrs_rrl_contamination:
         tsv=OUT + "/mtb_typing/contamination_check/rrs_rrl_contamination/{sample}.tsv",
     conda:
         "../envs/gatk_picard.yaml"
+    container:
+        "docker://broadinstitute/gatk:4.3.0.0"
     log:
         OUT + "/log/mtb_typing/mtb_rrs_rrl_contamination/{sample}.log",
     shell:
@@ -75,6 +81,8 @@ rule mtb_snpeff_annotation:
         stats=OUT + "/mtb_typing/snpeff_stats/{sample}.html",
     conda:
         "../envs/snpeff.yaml"
+    container:
+        "docker://staphb/snpeff:5.1"
     # params:
     #     outdir = OUT,
     #     db_dir_base = "snpeff_ref"
@@ -98,6 +106,8 @@ rule mtb_annotate_ab_positions:
         vcf=OUT + "/mtb_typing/annotated_vcf/{sample}.vcf",
     conda:
         "../envs/bcftools.yaml"
+    container:
+        "docker://staphb/bcftools:1.16"
     params:
         base_annotations="CHROM,POS",
         extra_annotations=lambda wildcards: SAMPLES[wildcards.sample][
@@ -124,6 +134,8 @@ rule mtb_annotated_vcf_to_table:
         tsv=OUT + "/mtb_typing/annotated_variants/{sample}.tsv",
     conda:
         "../envs/gatk_picard.yaml"
+    container:
+        "docker://broadinstitute/gatk:4.3.0.0"
     params:
         metadata=lambda wildcards: SAMPLES[wildcards.sample][
             "resistance_variants_columns"

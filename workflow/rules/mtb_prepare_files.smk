@@ -33,6 +33,8 @@ rule copy_ref:
         reference=temp(OUT + "/mtb_typing/prepared_files/{sample}_ref.fasta"),
     message:
         "Copying reference genome to output directory"
+    log:
+        OUT + "/log/copy_sample_bam/{sample}.log",
     shell:
         """
 cp {input.reference} {output.reference}
@@ -102,4 +104,96 @@ rule samtools_index_ref:
     shell:
         """
 samtools faidx {input.reference} 2>&1>{log}
+        """
+
+
+rule prepare_snpeff_config:
+    input:
+        template = "files/mtb/snpeff_template.config",
+        genbank = lambda wildcards: SAMPLES[wildcards.sample]["reference_genbank"],
+    output:
+        db_dir = directory(OUT + "/mtb_typing/prepared_reference_data/{sample}/snpeff_ref"),
+        config = temp(OUT + "/mtb_typing/prepared_reference_data/{sample}/snpeff.config")
+    conda:
+        "../envs/biopython.yaml"
+    log:
+        OUT + "/log/prepare_snpeff_config/{sample}.log"
+    shell:
+        """
+cp {input.template} {output.config} 2>{log}
+mkdir -p {output.db_dir} 2>>{log}
+cp {input.genbank} {output.db_dir}/genes.gbk 2>>{log}
+python workflow/scripts/prepare_snpeff.py {output.config} {input.genbank} 2>&1>>{log}
+        """
+
+
+rule build_snpeff_db:
+    input:
+        db_dir = OUT + "/mtb_typing/prepared_reference_data/{sample}/snpeff_ref",
+        config = OUT + "/mtb_typing/prepared_reference_data/{sample}/snpeff.config"
+    output:
+        touch(OUT + "/mtb_typing/prepared_reference_data/{sample}/build_snpeff_db.done"),
+    conda:
+        "../envs/snpeff.yaml"
+    log:
+        OUT + "/log/build_snpeff_db/{sample}.log"
+    shell:
+        """
+WORKDIR=$(dirname {input.config})
+CONFIG_NAME=$(basename {input.config})
+DB_NAME=$(basename {input.db_dir})
+cd $WORKDIR
+snpEff build -genbank -v $DB_NAME -config $CONFIG_NAME -dataDir . 2>&1>{log} 
+        """
+
+
+rule prepare_ab_table:
+    input:
+        csv=lambda wildcards: SAMPLES[wildcards.sample]["resistance_variants_csv"],
+    output:
+        uncompressed = temp(OUT + "/mtb_typing/prepared_reference_data/{sample}/ab_table.tab"),
+    params:
+        POS = "genomepos",
+        REF = "ref",
+        ALT = "allele",
+        metadata = lambda wildcards: SAMPLES[wildcards.sample]["resistance_variants_columns"],
+    log:
+        OUT + "/log/prepare_ab_table/{sample}.log"
+    shell:
+        """
+python workflow/scripts/convert_ab_table.py \
+--force-chrom NC_000962.3 \
+--POS {params.POS} \
+--REF {params.REF} \
+--ALT {params.ALT} \
+--other {params.metadata:q} \
+{input} {output.uncompressed} 2>&1>{log}
+        """
+
+rule compress_index_ab_table:
+    input:
+        uncompressed = OUT + "/mtb_typing/prepared_reference_data/{sample}/ab_table.tab",
+    output:
+        compressed = OUT + "/mtb_typing/prepared_reference_data/{sample}/ab_table.tab.gz",
+        index = OUT + "/mtb_typing/prepared_reference_data/{sample}/ab_table.tab.gz.tbi",
+    conda:
+        "../envs/bcftools.yaml"
+    log:
+        OUT + "/log/compress_index_ab_table/{sample}.log"
+    shell:
+        """
+bgzip -c {input.uncompressed} 1> {output.compressed} 2>{log}
+tabix -s 1 -b 2 -e 2 {output.compressed} 2>&1>>{log}
+        """
+
+rule generate_ab_table_header:
+    output:
+        OUT + "/mtb_typing/prepared_reference_data/{sample}/ab_table.header",
+    params:
+        columns = lambda wildcards: SAMPLES[wildcards.sample]["resistance_variants_columns"],
+    shell:
+        """
+python workflow/scripts/generate_ab_table_header.py \
+{params.columns:q} \
+{output}
         """

@@ -4,7 +4,7 @@ import pathlib
 from Bio import SeqIO
 
 
-def check_codontable(codontable, config):
+def check_codontable(codontable: pathlib.Path, config: pathlib.Path) -> None:
     with open(config, "r") as file:
         available_codontables = []
         for line in file:
@@ -16,7 +16,7 @@ def check_codontable(codontable, config):
     ), f"Codon table {codontable} is not available in snpEff template config {config}"
 
 
-def get_chromosomes(genbank_ref_path):
+def get_chromosomes(genbank_ref_path: pathlib.Path) -> list[str]:
     list_chromosomes = []
     with open(genbank_ref_path, "r") as genbank_ref:
         for record in SeqIO.parse(genbank_ref, "genbank"):
@@ -24,7 +24,7 @@ def get_chromosomes(genbank_ref_path):
     return list_chromosomes
 
 
-def main(args):
+def main(args: argparse.Namespace) -> None:
     check_codontable(args.codontable, args.config)
     list_chromosomes = get_chromosomes(args.genbank)
     comma_str_chromosomes = ", ".join(list_chromosomes)

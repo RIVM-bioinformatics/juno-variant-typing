@@ -90,7 +90,7 @@ class JunoVariantTyping(Pipeline):
             "--species",
             type=lambda s: s.strip().lower(),
             nargs=2,
-            default=["Mycobacterium", "tuberculosis"],
+            default=["mycobacterium", "tuberculosis"],
             required=False,
             metavar=("GENUS", "SPECIES"),
             help="Species name (any species in the metadata file will overwrite"

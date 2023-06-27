@@ -22,3 +22,16 @@ rule aggregate_species:
         mem_gb=config["mem_gb"]["other"],
     shell:
         "touch {output}"
+
+rule no_typing:
+    input:
+        vcf=lambda wildcards: SAMPLES[wildcards.sample]["vcf"],
+    output:
+        temp(OUT + "/typing_check/{sample}/no_typing_necessary.txt"),
+    message:
+        "Skipping typing step for {wildcards.sample}."
+    threads: 1
+    shell:
+        """
+        touch {output}
+        """

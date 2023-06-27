@@ -16,6 +16,7 @@ OUT = config["output_dir"]
 
 localrules:
     all,
+    no_typing,
     aggregate_species,
     copy_sample_bam,
     copy_ref,

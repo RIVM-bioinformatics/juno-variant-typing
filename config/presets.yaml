@@ -1,7 +1,7 @@
 mycobacterium_tuberculosis:
   single_copy_bed: files/mtb/coll_positions.bed
   reference_genbank: /mnt/db/juno/variant-typing/mtb/NC_000962.3.gbk
-  resistance_variants_csv: /mnt/db/juno/variant-typing/mtb/resistentielijst.csv
+  resistance_variants_csv: /mnt/db/juno/variant-typing/mtb/reslist.csv
   resistance_variants_columns: gene,drug,RIVM,TP,FP,confidence,variant_common_name
   resistance_variants_ab_column: drug
 other:

@@ -67,19 +67,19 @@ gatk CountVariants \
 rule mtb_snpeff_annotation:
     input:
         vcf=lambda wildcards: SAMPLES[wildcards.sample]["vcf"],
-        db_dir = OUT + "/mtb_typing/prepared_reference_data/{sample}/snpeff_ref",
-        config = OUT + "/mtb_typing/prepared_reference_data/{sample}/snpeff.config",
-        dummy = OUT + "/mtb_typing/prepared_reference_data/{sample}/build_snpeff_db.done",
+        db_dir=OUT + "/mtb_typing/prepared_reference_data/{sample}/snpeff_ref",
+        config=OUT + "/mtb_typing/prepared_reference_data/{sample}/snpeff.config",
+        dummy=OUT + "/mtb_typing/prepared_reference_data/{sample}/build_snpeff_db.done",
     output:
-        vcf = OUT + "/mtb_typing/snpeff/{sample}.vcf",
-        stats = OUT + "/mtb_typing/snpeff_stats/{sample}.html"
+        vcf=OUT + "/mtb_typing/snpeff/{sample}.vcf",
+        stats=OUT + "/mtb_typing/snpeff_stats/{sample}.html",
     conda:
         "../envs/snpeff.yaml"
     # params:
     #     outdir = OUT,
     #     db_dir_base = "snpeff_ref"
     log:
-        OUT + "/log/mtb_snpeff_annotation/{sample}.log"
+        OUT + "/log/mtb_snpeff_annotation/{sample}.log",
     shell:
         """
 WORKDIR=$(dirname {input.db_dir})
@@ -91,17 +91,20 @@ snpEff ann -c {input.config} -dataDir $WORKDIR -stats {output.stats} -noLog -o g
 rule mtb_annotate_ab_positions:
     input:
         vcf=OUT + "/mtb_typing/snpeff/{sample}.vcf",
-        compressed_table=OUT + "/mtb_typing/prepared_reference_data/{sample}/ab_table.tab.gz",
+        compressed_table=OUT
+        + "/mtb_typing/prepared_reference_data/{sample}/ab_table.tab.gz",
         header=OUT + "/mtb_typing/prepared_reference_data/{sample}/ab_table.header",
     output:
-        vcf = OUT + "/mtb_typing/annotated_vcf/{sample}.vcf",
+        vcf=OUT + "/mtb_typing/annotated_vcf/{sample}.vcf",
     conda:
         "../envs/bcftools.yaml"
     params:
-        base_annotations = "CHROM,POS",
-        extra_annotations = lambda wildcards: SAMPLES[wildcards.sample]["resistance_variants_columns"],
+        base_annotations="CHROM,POS",
+        extra_annotations=lambda wildcards: SAMPLES[wildcards.sample][
+            "resistance_variants_columns"
+        ],
     log:
-        OUT + "/log/mtb_annotate_ab_positions/{sample}.log"
+        OUT + "/log/mtb_annotate_ab_positions/{sample}.log",
     shell:
         """
 bcftools annotate \
@@ -116,15 +119,17 @@ bcftools annotate \
 
 rule mtb_annotated_vcf_to_table:
     input:
-        vcf = OUT + "/mtb_typing/annotated_vcf/{sample}.vcf",
+        vcf=OUT + "/mtb_typing/annotated_vcf/{sample}.vcf",
     output:
-        tsv = OUT + "/mtb_typing/annotated_variants/{sample}.tsv",
+        tsv=OUT + "/mtb_typing/annotated_variants/{sample}.tsv",
     conda:
         "../envs/gatk_picard.yaml"
     params:
-        metadata = lambda wildcards: SAMPLES[wildcards.sample]["resistance_variants_columns"],
+        metadata=lambda wildcards: SAMPLES[wildcards.sample][
+            "resistance_variants_columns"
+        ],
     log:
-        OUT + "/log/mtb_annotated_vcf_to_table/{sample}.log"
+        OUT + "/log/mtb_annotated_vcf_to_table/{sample}.log",
     shell:
         """
 FIELDS=$(python workflow/scripts/print_fields_VariantsToTable.py {params.metadata:q})
@@ -144,13 +149,15 @@ $FIELDS \
 
 rule mtb_filter_res_table_positions:
     input:
-        tsv = OUT + "/mtb_typing/annotated_variants/{sample}.tsv",
+        tsv=OUT + "/mtb_typing/annotated_variants/{sample}.tsv",
     output:
-        tsv = OUT + "/mtb_typing/annotated_resistance_filtered/{sample}.tsv",
+        tsv=OUT + "/mtb_typing/annotated_resistance_filtered/{sample}.tsv",
     params:
-        ab_column = lambda wildcards: SAMPLES[wildcards.sample]["resistance_variants_ab_column"],
+        ab_column=lambda wildcards: SAMPLES[wildcards.sample][
+            "resistance_variants_ab_column"
+        ],
     log:
-        OUT + "/log/mtb_filter_res_table_positions/{sample}.log"
+        OUT + "/log/mtb_filter_res_table_positions/{sample}.log",
     shell:
         """
 python workflow/scripts/filter_res_table.py \

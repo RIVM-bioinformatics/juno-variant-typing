@@ -13,6 +13,7 @@ for param in ["threads", "mem_gb"]:
 
 OUT = config["output_dir"]
 
+
 localrules:
     all,
     aggregate_species,
@@ -26,4 +27,7 @@ include: "workflow/rules/mtb_typing.smk"
 rule all:
     input:
         expand(OUT + "/typing_check/{sample}_done.txt", sample=SAMPLES),
-        expand(OUT + "/mtb_typing/annotated_resistance_filtered/{sample}.tsv", sample=SAMPLES)
+        expand(
+            OUT + "/mtb_typing/annotated_resistance_filtered/{sample}.tsv",
+            sample=SAMPLES,
+        ),

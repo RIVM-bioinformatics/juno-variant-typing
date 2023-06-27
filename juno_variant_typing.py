@@ -194,17 +194,16 @@ class JunoVariantTyping(Pipeline):
                 )
 
     def set_presets(self) -> None:
-
         if self.presets_path is None:
             self.presets_path = Path(__file__).parent.joinpath("config/presets.yaml")
-        
+
         with open(self.presets_path) as f:
             presets_dict = yaml.safe_load(f)
 
-
         for sample in self.sample_dict:
-            complete_species_name = "_".join([self.sample_dict[sample]["genus"],
-                                              self.sample_dict[sample]["species"]])
+            complete_species_name = "_".join(
+                [self.sample_dict[sample]["genus"], self.sample_dict[sample]["species"]]
+            )
 
             if complete_species_name in presets_dict.keys():
                 for key, value in presets_dict[complete_species_name].items():

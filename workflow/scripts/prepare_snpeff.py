@@ -3,14 +3,18 @@
 import pathlib
 from Bio import SeqIO
 
+
 def check_codontable(codontable, config):
     with open(config, "r") as file:
         available_codontables = []
         for line in file:
             if line.startswith("codon."):
-                codontable_name = line.split('\t')[0].split('.')[1]
+                codontable_name = line.split("\t")[0].split(".")[1]
                 available_codontables.append(codontable_name)
-    assert codontable in available_codontables, f"Codon table {codontable} is not available in snpEff template config {config}"
+    assert (
+        codontable in available_codontables
+    ), f"Codon table {codontable} is not available in snpEff template config {config}"
+
 
 def get_chromosomes(genbank_ref_path):
     list_chromosomes = []
@@ -32,24 +36,31 @@ def main(args):
         for chrom in list_chromosomes:
             file.write(f"snpeff_ref.{chrom}.codonTable : {args.codontable}\n")
 
+
 if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
-    
-    parser.add_argument(help="SnpEff config file",
-                        dest="config",
-                        metavar="SNPEFF_CONFIG",
-                        type=pathlib.Path)
-    parser.add_argument(help="Genbank reference file",
-                        dest="genbank",
-                        metavar="GENBANK_REF",
-                        type=pathlib.Path)
-    parser.add_argument("--codontable",
-                        help="Codon table to use. Should be present in SnpEff template config [Bacterial_and_Plant_Plastid]",
-                        type=str,
-                        metavar="STR",
-                        default="Bacterial_and_Plant_Plastid")
+
+    parser.add_argument(
+        help="SnpEff config file",
+        dest="config",
+        metavar="SNPEFF_CONFIG",
+        type=pathlib.Path,
+    )
+    parser.add_argument(
+        help="Genbank reference file",
+        dest="genbank",
+        metavar="GENBANK_REF",
+        type=pathlib.Path,
+    )
+    parser.add_argument(
+        "--codontable",
+        help="Codon table to use. Should be present in SnpEff template config [Bacterial_and_Plant_Plastid]",
+        type=str,
+        metavar="STR",
+        default="Bacterial_and_Plant_Plastid",
+    )
 
     args = parser.parse_args()
 

@@ -108,16 +108,14 @@ class JunoVariantTyping(Pipeline):
             " databases for all the tools used in this pipeline or where they"
             " should be downloaded. Default is: /mnt/db/juno/variant_typing_db",
         )
-        # self.add_argument(
-        #     "--single-copy-bed",
-        #     type=Path,
-        #     required=False,
-        #     metavar="DIR",
-        #     help="Relative or absolute path to a bed file listing positions"
-        #     " in single copy genes. These positions will be screened for mixed"
-        #     "/minority variants to detect potential within-species contamination."
-        #     " The default is selected per species.",
-        # )
+        self.add_argument(
+            "--presets-path",
+            type=Path,
+            required=False,
+            metavar="PATH",
+            help="Relative or absolute path to custom presets.yaml to use. If"
+            " none is provided, the default (config/presets.yaml) is used.",
+        )
 
     def _parse_args(self) -> argparse.Namespace:
         args = super()._parse_args()
@@ -129,6 +127,7 @@ class JunoVariantTyping(Pipeline):
         self.species: Optional[str]
         self.genus, self.species = args.species
         self.metadata_file: Path = args.metadata
+        self.presets_path: Optional[Path] = args.presets_path
         # self.single_copy_bed: Optional[Path] = args.single_copy_bed
 
         return args
@@ -163,7 +162,7 @@ class JunoVariantTyping(Pipeline):
             "input_dir": str(self.input_dir),
             "output_dir": str(self.output_dir),
             "exclusion_file": str(self.exclusion_file),
-            # "single_copy_bed": str(self.single_copy_bed),
+            "custom_presets_file": str(self.presets_path),
             # "example": str(self.example), # other user parameters can be included in user_parameters.yaml here
         }
 
@@ -195,11 +194,18 @@ class JunoVariantTyping(Pipeline):
                 )
 
     def set_presets(self) -> None:
-        with open(Path(__file__).parent.joinpath("config/presets.yaml")) as f:
+
+        if self.presets_path is None:
+            self.presets_path = Path(__file__).parent.joinpath("config/presets.yaml")
+        
+        with open(self.presets_path) as f:
             presets_dict = yaml.safe_load(f)
 
+
         for sample in self.sample_dict:
-            complete_species_name = "_".join([self.genus, self.species])
+            complete_species_name = "_".join([self.sample_dict[sample]["genus"],
+                                              self.sample_dict[sample]["species"]])
+
             if complete_species_name in presets_dict.keys():
                 for key, value in presets_dict[complete_species_name].items():
                     self.sample_dict[sample][key] = value

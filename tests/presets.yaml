@@ -1,0 +1,6 @@
+mycobacterium_tuberculosis:
+  single_copy_bed: tests/K1F_coll.bed
+  reference_genbank: tests/K1F.gbk
+  resistance_variants_csv: tests/resistance_list.csv
+  resistance_variants_columns: gene,drug
+  resistance_variants_ab_column: drug

@@ -22,6 +22,11 @@ rule index_sample_bam:
         "../envs/gatk_picard.yaml"
     log:
         OUT + "/log/index_sample_bam/{sample}.log",
+    message:
+        "Indexing bam for {wildcards.sample}"
+    threads: config["threads"]["samtools"],
+    resources:
+        mem_gb=config["mem_gb"]["samtools"],
     shell:
         """
 samtools index {input.bam} 2>&1>>{log}
@@ -56,9 +61,11 @@ rule bwa_index_ref:
         "docker://staphb/bwa:0.7.17"
     log:
         OUT + "/log/bwa_index_ref/{sample}.log",
-    threads: config["threads"]["other"]
+    message:
+        "Indexing ref (bwa) for {wildcards.sample}"
+    threads: config["threads"]["bwa"]
     resources:
-        mem_gb=config["mem_gb"]["other"],
+        mem_gb=config["mem_gb"]["bwa"],
     shell:
         """
 bwa index {input} 2>&1>{log}
@@ -78,9 +85,11 @@ rule gatk_index_ref:
         "docker://broadinstitute/gatk:4.3.0.0"
     log:
         OUT + "/log/gatk_index_ref/{sample}.log",
-    threads: config["threads"]["other"]
+    message:
+        "Indexing ref (GATK) for {wildcards.sample}"
+    threads: config["threads"]["gatk"],
     resources:
-        mem_gb=config["mem_gb"]["other"],
+        mem_gb=config["mem_gb"]["gatk"],
     shell:
         """
 gatk CreateSequenceDictionary -R {input.reference} 2>&1>{log}
@@ -100,9 +109,11 @@ rule samtools_index_ref:
         "docker://staphb/samtools:1.17"
     log:
         OUT + "/log/samtools_index_ref/{sample}.log",
-    threads: config["threads"]["other"]
+    message:
+        "Indexing ref (samtools) for {wildcards.sample}"
+    threads: config["threads"]["samtools"]
     resources:
-        mem_gb=config["mem_gb"]["other"],
+        mem_gb=config["mem_gb"]["samtools"],
     shell:
         """
 samtools faidx {input.reference} 2>&1>{log}
@@ -124,6 +135,11 @@ rule prepare_snpeff_config:
         "docker://pegi3s/biopython:1.78"
     log:
         OUT + "/log/prepare_snpeff_config/{sample}.log",
+    message:
+        "Preparing SnpEff config for {wildcards.sample}"
+    threads: config["threads"]["other"],
+    resources:
+        mem_gb=config["mem_gb"]["other"],
     shell:
         """
 cp {input.template} {output.config} 2>{log}
@@ -145,6 +161,11 @@ rule build_snpeff_db:
         "docker://staphb/snpeff:5.1"
     log:
         OUT + "/log/build_snpeff_db/{sample}.log",
+    message:
+        "Building SnpEff db for {wildcards.sample}"
+    threads: config["threads"]["snpeff"],
+    resources:
+        mem_gb=config["mem_gb"]["snpeff"],
     shell:
         """
 WORKDIR=$(dirname {input.config})
@@ -171,6 +192,8 @@ rule prepare_ab_table:
         ],
     log:
         OUT + "/log/prepare_ab_table/{sample}.log",
+    message:
+        "Coverting AMR table for {wildcards.sample}"
     shell:
         """
 python workflow/scripts/convert_ab_table.py \
@@ -195,6 +218,11 @@ rule compress_index_ab_table:
         "docker://staphb/bcftools:1.16"
     log:
         OUT + "/log/compress_index_ab_table/{sample}.log",
+    message:
+        "Compressing and indexing AMR table for {wildcards.sample}"
+    threads: config["threads"]["bcftools"],
+    resources:
+        mem_gb=config["mem_gb"]["bcftools"],
     shell:
         """
 bgzip -c {input.uncompressed} 1> {output.compressed} 2>{log}

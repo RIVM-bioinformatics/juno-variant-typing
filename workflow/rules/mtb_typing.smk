@@ -11,9 +11,9 @@ rule mtb_lineage_id:
         OUT + "/log/mtb_lineage_id/{sample}.log",
     message:
         "Typing Mtb lineage for {wildcards.sample}"
-    threads: 1
+    threads: config["threads"]["fast-lineage-caller"],
     resources:
-        mem_gb=config["mem_gb"]["other"],
+        mem_gb=config["mem_gb"]["fast-lineage-caller"],
     shell:
         """
 fast-lineage-caller \
@@ -39,6 +39,11 @@ rule mtb_coll_contamination:
         "docker://broadinstitute/gatk:4.3.0.0"
     log:
         OUT + "/log/mtb_typing/mtb_coll_contamination/{sample}.log",
+    message:
+        "Assessing minor variants in coll positions for {wildcards.sample}"
+    threads: config["threads"]["gatk"],
+    resources:
+        mem_gb=config["mem_gb"]["gatk"],
     shell:
         """
 gatk CollectAllelicCounts \
@@ -61,6 +66,11 @@ rule mtb_rrs_rrl_contamination:
         "docker://broadinstitute/gatk:4.3.0.0"
     log:
         OUT + "/log/mtb_typing/mtb_rrs_rrl_contamination/{sample}.log",
+    message:
+        "Counting rrs/rrl variants for {wildcards.sample}"
+    threads: config["threads"]["gatk"],
+    resources:
+        mem_gb=config["mem_gb"]["gatk"],
     shell:
         """
 gatk CountVariants \
@@ -88,6 +98,11 @@ rule mtb_snpeff_annotation:
     #     db_dir_base = "snpeff_ref"
     log:
         OUT + "/log/mtb_snpeff_annotation/{sample}.log",
+    message:
+        "Running SnpEff for {wildcards.sample}"
+    threads: config["threads"]["snpeff"],
+    resources:
+        mem_gb=config["mem_gb"]["snpeff"],
     shell:
         """
 WORKDIR=$(dirname {input.db_dir})
@@ -115,6 +130,11 @@ rule mtb_annotate_ab_positions:
         ],
     log:
         OUT + "/log/mtb_annotate_ab_positions/{sample}.log",
+    message:
+        "Annotating variants with AMR for {wildcards.sample}"
+    threads: config["threads"]["bcftools"],
+    resources:
+        mem_gb=config["mem_gb"]["bcftools"],
     shell:
         """
 bcftools annotate \
@@ -142,6 +162,11 @@ rule mtb_annotated_vcf_to_table:
         ],
     log:
         OUT + "/log/mtb_annotated_vcf_to_table/{sample}.log",
+    message:
+        "Convert annotated variants to table for {wildcards.sample}"
+    threads: config["threads"]["gatk"],
+    resources:
+        mem_gb=config["mem_gb"]["gatk"],
     shell:
         """
 FIELDS=$(python workflow/scripts/print_fields_VariantsToTable.py {params.metadata:q})

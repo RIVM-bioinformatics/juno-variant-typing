@@ -215,7 +215,7 @@ rule compress_index_ab_table:
     conda:
         "../envs/bcftools.yaml"
     container:
-        "docker://staphb/bcftools:1.16"
+        "docker://staphb/htslib:1.17"
     log:
         OUT + "/log/compress_index_ab_table/{sample}.log",
     message:

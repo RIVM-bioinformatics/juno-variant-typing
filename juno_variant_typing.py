@@ -144,7 +144,8 @@ class JunoVariantTyping(Pipeline):
         if self.snakemake_args["use_singularity"]:
             self.snakemake_args["singularity_args"] = " ".join(
                 [
-                    self.snakemake_args["singularity_args"]
+                    self.snakemake_args["singularity_args"],
+                    f"--bind {self.db_dir}:{self.db_dir}"
                 ]  # paths that singularity should be able to read from can be bound by adding to the above list
             )
 

@@ -2,7 +2,7 @@
 
 import pathlib
 from Bio import SeqIO
-from typing import Tuple
+from typing import List
 import argparse
 
 
@@ -18,11 +18,11 @@ def check_codontable(codontable: pathlib.Path, config: pathlib.Path) -> None:
     ), f"Codon table {codontable} is not available in snpEff template config {config}"
 
 
-def get_chromosomes(genbank_ref_path: pathlib.Path) -> Tuple[str]:
+def get_chromosomes(genbank_ref_path: pathlib.Path) -> List[str]:
     list_chromosomes = []
     with open(genbank_ref_path, "r") as genbank_ref:
         for record in SeqIO.parse(genbank_ref, "genbank"):
-            list_chromosomes.append(record.id)
+            list_chromosomes.append(str(record.id))
     return list_chromosomes
 
 

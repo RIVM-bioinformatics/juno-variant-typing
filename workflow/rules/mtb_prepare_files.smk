@@ -172,7 +172,7 @@ WORKDIR=$(dirname {input.config})
 CONFIG_NAME=$(basename {input.config})
 DB_NAME=$(basename {input.db_dir})
 cd $WORKDIR
-snpEff build -genbank -v $DB_NAME -config $CONFIG_NAME -dataDir . 2>&1>{log} 
+snpeff build -genbank -v $DB_NAME -config $CONFIG_NAME -dataDir . 2>&1>{log} 
         """
 
 

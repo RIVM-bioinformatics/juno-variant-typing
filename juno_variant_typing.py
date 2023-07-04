@@ -103,10 +103,10 @@ class JunoVariantTyping(Pipeline):
             type=Path,
             required=False,
             metavar="DIR",
-            default="/mnt/db/juno/variant_typing_db",
+            default="/mnt/db/juno/variant-typing",
             help="Relative or absolute path to the directory that contains the"
             " databases for all the tools used in this pipeline or where they"
-            " should be downloaded. Default is: /mnt/db/juno/variant_typing_db",
+            " should be downloaded. Default is: /mnt/db/juno/variant-typing",
         )
         self.add_argument(
             "--presets-path",

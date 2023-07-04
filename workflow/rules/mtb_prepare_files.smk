@@ -145,7 +145,7 @@ rule prepare_snpeff_config:
 cp {input.template} {output.config} 2>{log}
 mkdir -p {output.db_dir} 2>>{log}
 cp {input.genbank} {output.db_dir}/genes.gbk 2>>{log}
-python workflow/scripts/prepare_snpeff.py {output.config} {input.genbank} 2>&1>>{log}
+python3 workflow/scripts/prepare_snpeff.py {output.config} {input.genbank} 2>&1>>{log}
         """
 
 

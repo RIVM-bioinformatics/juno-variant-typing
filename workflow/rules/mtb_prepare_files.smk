@@ -24,7 +24,7 @@ rule index_sample_bam:
         OUT + "/log/index_sample_bam/{sample}.log",
     message:
         "Indexing bam for {wildcards.sample}"
-    threads: config["threads"]["samtools"],
+    threads: config["threads"]["samtools"]
     resources:
         mem_gb=config["mem_gb"]["samtools"],
     shell:
@@ -87,7 +87,7 @@ rule gatk_index_ref:
         OUT + "/log/gatk_index_ref/{sample}.log",
     message:
         "Indexing ref (GATK) for {wildcards.sample}"
-    threads: config["threads"]["gatk"],
+    threads: config["threads"]["gatk"]
     resources:
         mem_gb=config["mem_gb"]["gatk"],
     shell:
@@ -137,7 +137,7 @@ rule prepare_snpeff_config:
         OUT + "/log/prepare_snpeff_config/{sample}.log",
     message:
         "Preparing SnpEff config for {wildcards.sample}"
-    threads: config["threads"]["other"],
+    threads: config["threads"]["other"]
     resources:
         mem_gb=config["mem_gb"]["other"],
     shell:
@@ -163,7 +163,7 @@ rule build_snpeff_db:
         OUT + "/log/build_snpeff_db/{sample}.log",
     message:
         "Building SnpEff db for {wildcards.sample}"
-    threads: config["threads"]["snpeff"],
+    threads: config["threads"]["snpeff"]
     resources:
         mem_gb=config["mem_gb"]["snpeff"],
     shell:
@@ -220,7 +220,7 @@ rule compress_index_ab_table:
         OUT + "/log/compress_index_ab_table/{sample}.log",
     message:
         "Compressing and indexing AMR table for {wildcards.sample}"
-    threads: config["threads"]["bcftools"],
+    threads: config["threads"]["bcftools"]
     resources:
         mem_gb=config["mem_gb"]["bcftools"],
     shell:

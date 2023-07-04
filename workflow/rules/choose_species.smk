@@ -23,6 +23,7 @@ rule aggregate_species:
     shell:
         "touch {output}"
 
+
 rule no_typing:
     input:
         vcf=lambda wildcards: SAMPLES[wildcards.sample]["vcf"],

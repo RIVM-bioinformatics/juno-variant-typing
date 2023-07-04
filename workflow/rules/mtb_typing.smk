@@ -11,7 +11,7 @@ rule mtb_lineage_id:
         OUT + "/log/mtb_lineage_id/{sample}.log",
     message:
         "Typing Mtb lineage for {wildcards.sample}"
-    threads: config["threads"]["fast-lineage-caller"],
+    threads: config["threads"]["fast-lineage-caller"]
     resources:
         mem_gb=config["mem_gb"]["fast-lineage-caller"],
     shell:
@@ -41,7 +41,7 @@ rule mtb_coll_contamination:
         OUT + "/log/mtb_typing/mtb_coll_contamination/{sample}.log",
     message:
         "Assessing minor variants in coll positions for {wildcards.sample}"
-    threads: config["threads"]["gatk"],
+    threads: config["threads"]["gatk"]
     resources:
         mem_gb=config["mem_gb"]["gatk"],
     shell:
@@ -68,7 +68,7 @@ rule mtb_rrs_rrl_contamination:
         OUT + "/log/mtb_typing/mtb_rrs_rrl_contamination/{sample}.log",
     message:
         "Counting rrs/rrl variants for {wildcards.sample}"
-    threads: config["threads"]["gatk"],
+    threads: config["threads"]["gatk"]
     resources:
         mem_gb=config["mem_gb"]["gatk"],
     shell:
@@ -100,7 +100,7 @@ rule mtb_snpeff_annotation:
         OUT + "/log/mtb_snpeff_annotation/{sample}.log",
     message:
         "Running SnpEff for {wildcards.sample}"
-    threads: config["threads"]["snpeff"],
+    threads: config["threads"]["snpeff"]
     resources:
         mem_gb=config["mem_gb"]["snpeff"],
     shell:
@@ -132,7 +132,7 @@ rule mtb_annotate_ab_positions:
         OUT + "/log/mtb_annotate_ab_positions/{sample}.log",
     message:
         "Annotating variants with AMR for {wildcards.sample}"
-    threads: config["threads"]["bcftools"],
+    threads: config["threads"]["bcftools"]
     resources:
         mem_gb=config["mem_gb"]["bcftools"],
     shell:
@@ -164,7 +164,7 @@ rule mtb_annotated_vcf_to_table:
         OUT + "/log/mtb_annotated_vcf_to_table/{sample}.log",
     message:
         "Convert annotated variants to table for {wildcards.sample}"
-    threads: config["threads"]["gatk"],
+    threads: config["threads"]["gatk"]
     resources:
         mem_gb=config["mem_gb"]["gatk"],
     shell:

@@ -107,7 +107,7 @@ rule mtb_snpeff_annotation:
         """
 WORKDIR=$(dirname {input.db_dir})
 DB_NAME=$(basename {input.db_dir})
-snpEff ann -c {input.config} -dataDir $WORKDIR -stats {output.stats} -noLog -o gatk -ud 0 $DB_NAME {input.vcf} > {output.vcf} 2>{log}
+snpeff ann -c {input.config} -dataDir $WORKDIR -stats {output.stats} -noLog -o gatk -ud 0 $DB_NAME {input.vcf} > {output.vcf} 2>{log}
         """
 
 

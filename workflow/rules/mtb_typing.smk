@@ -148,7 +148,7 @@ rule mtb_annotated_vcf_to_table:
     input:
         vcf=OUT + "/mtb_typing/annotated_vcf/{sample}.vcf",
     output:
-        tsv=OUT + "/mtb_typing/annotated_variants/{sample}.tsv",
+        tsv=temp(OUT + "/mtb_typing/annotated_variants/raw_{sample}.tsv"),
     conda:
         "../envs/gatk_picard.yaml"
     container:
@@ -157,6 +157,7 @@ rule mtb_annotated_vcf_to_table:
         metadata=lambda wildcards: SAMPLES[wildcards.sample][
             "resistance_variants_columns"
         ],
+        effect_column="EFF",
     log:
         OUT + "/log/mtb_annotated_vcf_to_table/{sample}.log",
     message:
@@ -166,7 +167,7 @@ rule mtb_annotated_vcf_to_table:
         mem_gb=config["mem_gb"]["gatk"],
     shell:
         """
-FIELDS=$(python workflow/scripts/print_fields_VariantsToTable.py {params.metadata:q})
+FIELDS=$(python workflow/scripts/print_fields_VariantsToTable.py {params.metadata:q},{params.effect_column:q})
 gatk VariantsToTable \
 -V {input.vcf} \
 -F CHROM \
@@ -175,9 +176,26 @@ gatk VariantsToTable \
 -F REF \
 -F ALT \
 -F DP \
+-F FILTER \
 -GF AF \
 $FIELDS \
 -O {output.tsv} 2>&1>{log}
+        """
+
+
+rule postprocess_variant_table:
+    input:
+        tsv=OUT + "/mtb_typing/annotated_variants/raw_{sample}.tsv",
+    output:
+        tsv=OUT + "/mtb_typing/annotated_variants/{sample}.tsv",
+    log:
+        OUT + "/log/postprocess_variant_table/{sample}.log",
+    shell:
+        """
+python workflow/scripts/postprocess_variant_table.py \
+--input {input} \
+--output {output} \
+2>&1>{log}
         """
 
 

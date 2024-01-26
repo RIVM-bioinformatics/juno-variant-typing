@@ -14,8 +14,6 @@ parser.add_argument(
     type=str,
 )
 parser.add_argument("--POS", help="Column to parse genome positions", type=str)
-# parser.add_argument("--REF", help="Column to parse reference allele", type=str)
-# parser.add_argument("--ALT", help="Column to parse alternative allele", type=str)
 parser.add_argument(
     "--other",
     help="""
@@ -29,15 +27,11 @@ parser.add_argument(help="Output tab file", dest="output", type=Path)
 
 args = parser.parse_args()
 
-# def sanitise_string(old):
-#     tmp = re.sub('[^a-zA-Z0-9_-]', '_', old)
-#     return re.sub('__', '_', tmp).strip('_')
 
 df_in = pd.read_csv(args.input, sep=";")
 
 metadata_cols = args.other.split(",")
 
-# ordered_columns = [args.POS] + [args.REF] + [args.ALT] + metadata_cols
 ordered_columns = [args.POS] + metadata_cols
 
 for col in ordered_columns:
@@ -50,15 +44,6 @@ df_out.insert(0, "#CHROM", args.force_chrom)
 df_out = df_out.sort_values("genomepos")
 df_out = df_out.fillna("missing")
 
-
-# clean_cols = []
-
-# for col in df_out.columns:
-#     clean_cols.append(sanitise_string(col))
-
-# df_out.columns = clean_cols
-
-# df_out.rename(columns = {'genomepos':'POS', 'CHROM':'#CHROM'}, inplace = True)
 
 df_out.rename(columns={"genomepos": "POS"}, inplace=True)
 

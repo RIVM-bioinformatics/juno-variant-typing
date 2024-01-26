@@ -14,8 +14,8 @@ parser.add_argument(
     type=str,
 )
 parser.add_argument("--POS", help="Column to parse genome positions", type=str)
-parser.add_argument("--REF", help="Column to parse reference allele", type=str)
-parser.add_argument("--ALT", help="Column to parse alternative allele", type=str)
+# parser.add_argument("--REF", help="Column to parse reference allele", type=str)
+# parser.add_argument("--ALT", help="Column to parse alternative allele", type=str)
 parser.add_argument(
     "--other",
     help="""
@@ -37,7 +37,8 @@ df_in = pd.read_csv(args.input, sep=";")
 
 metadata_cols = args.other.split(",")
 
-ordered_columns = [args.POS] + [args.REF] + [args.ALT] + metadata_cols
+# ordered_columns = [args.POS] + [args.REF] + [args.ALT] + metadata_cols
+ordered_columns = [args.POS] + metadata_cols
 
 for col in ordered_columns:
     assert col in df_in.columns, f"Column {col} cannot be found in {args.input}"

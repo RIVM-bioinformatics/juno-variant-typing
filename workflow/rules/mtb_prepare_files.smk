@@ -185,8 +185,6 @@ rule prepare_ab_table:
         ),
     params:
         POS="genomepos",
-        REF="ref",
-        ALT="allele",
         metadata=lambda wildcards: SAMPLES[wildcards.sample][
             "resistance_variants_columns"
         ],
@@ -199,10 +197,9 @@ rule prepare_ab_table:
 python workflow/scripts/convert_ab_table.py \
 --force-chrom NC_000962.3 \
 --POS {params.POS} \
---REF {params.REF} \
---ALT {params.ALT} \
 --other {params.metadata:q} \
-{input} {output.uncompressed} 2>&1>{log}
+{input} \
+{output.uncompressed} 2>&1>{log}
         """
 
 

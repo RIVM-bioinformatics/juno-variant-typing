@@ -10,7 +10,7 @@ def process_df(input_path: str, ab_column: str, output_path: str) -> None:
     """
     Filter out table rows if these have NA/NaN in both RESISTANCE_AB and RESISTANCE_AB_CLASS columns
     """
-    df = pd.read_csv(input_path, sep="\t", dtype=str)
+    df = pd.read_csv(input_path, sep="\t", dtype=str, na_values=["-"])
     filter_ab = ~df[ab_column].isna()
     df = df[filter_ab]
     df.to_csv(output_path, sep="\t", index=False)

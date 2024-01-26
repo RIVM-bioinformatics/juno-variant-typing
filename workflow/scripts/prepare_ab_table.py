@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
-import pandas as pd
 import argparse
 import re
 from pathlib import Path
+
+import pandas as pd
 
 parser = argparse.ArgumentParser()
 

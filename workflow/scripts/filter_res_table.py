@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
-import pandas as pd
 import argparse
 from pathlib import Path
+
+import pandas as pd
 
 
 def process_df(input_path: str, ab_column: str, output_path: str) -> None:

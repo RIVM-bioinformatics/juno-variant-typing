@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
-import pandas as pd
 import argparse
-import re
 from pathlib import Path
+
+import pandas as pd
 
 parser = argparse.ArgumentParser()
 
@@ -16,10 +16,7 @@ parser.add_argument(
 parser.add_argument("--POS", help="Column to parse genome positions", type=str)
 parser.add_argument(
     "--other",
-    help="""
-                    Column(s) to parse for metadata to be included.
-                    If you want multiple columns, provide a comma-separated list (e.g. --other ab,ab_class)
-                    """,
+    help="Column(s) to parse for metadata to be included. If you want multiple columns, provide a comma-separated list (e.g. --other ab,ab_class)",
     type=str,
 )
 parser.add_argument(help="Input csv file", dest="input", type=Path)

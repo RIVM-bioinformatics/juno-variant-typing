@@ -93,9 +93,6 @@ rule mtb_snpeff_annotation:
         "../envs/snpeff.yaml"
     container:
         "docker://staphb/snpeff:5.1"
-    # params:
-    #     outdir = OUT,
-    #     db_dir_base = "snpeff_ref"
     log:
         OUT + "/log/mtb_snpeff_annotation/{sample}.log",
     message:

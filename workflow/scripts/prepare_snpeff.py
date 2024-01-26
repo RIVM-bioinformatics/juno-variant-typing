@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
-import pathlib
-from Bio import SeqIO
-from typing import List
 import argparse
+import pathlib
+from typing import List
+
+from Bio import SeqIO
 
 
 def check_codontable(codontable: pathlib.Path, config: pathlib.Path) -> None:

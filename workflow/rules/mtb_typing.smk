@@ -170,6 +170,7 @@ rule mtb_annotated_vcf_to_table:
 FIELDS=$(python workflow/scripts/print_fields_VariantsToTable.py {params.metadata:q},{params.effect_column:q})
 gatk VariantsToTable \
 -V {input.vcf} \
+--show-filtered \
 -F CHROM \
 -F POS \
 -F TYPE \

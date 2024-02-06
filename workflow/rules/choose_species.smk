@@ -5,6 +5,7 @@ def choose_species(wildcards):
         return [
             OUT + "/mtb_typing/lineage_call/{sample}.tsv",
             OUT + "/mtb_typing/contamination_check/coll_positions/{sample}.tsv",
+            OUT + "/mtb_typing/contamination_check/rrs_rrl_contamination/{sample}.tsv",
         ]
     else:
         return OUT + "/typing_check/{sample}/no_typing_necessary.txt"

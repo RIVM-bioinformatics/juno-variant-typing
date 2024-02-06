@@ -1,6 +1,6 @@
 rule mtb_lineage_id:
     input:
-        vcf=lambda wildcards: SAMPLES[wildcards.sample]["vcf"],
+        vcf=OUT + "/mtb_typing/prepared_files/{sample}.vcf",
     output:
         tsv=OUT + "/mtb_typing/lineage_call/{sample}.tsv",
     conda:
@@ -57,8 +57,13 @@ gatk CollectAllelicCounts \
 
 rule mtb_rrs_rrl_contamination:
     input:
-        vcf=lambda wildcards: SAMPLES[wildcards.sample]["vcf"],
+        vcf=OUT + "/mtb_typing/prepared_files/{sample}.vcf",
+        tbi=OUT + "/mtb_typing/prepared_files/{sample}.vcf.idx",
+        bed=lambda wildcards: SAMPLES[wildcards.sample]["count_mutations_bed"],
     output:
+        filtered_vcf=temp(
+            OUT + "/mtb_typing/contamination_check/rrs_rrl_contamination/{sample}.vcf"
+        ),
         tsv=OUT + "/mtb_typing/contamination_check/rrs_rrl_contamination/{sample}.tsv",
     conda:
         "../envs/gatk_picard.yaml"
@@ -73,16 +78,23 @@ rule mtb_rrs_rrl_contamination:
         mem_gb=config["mem_gb"]["gatk"],
     shell:
         """
-gatk CountVariants \
+gatk SelectVariants \
 -V {input.vcf} \
+-O {output.filtered_vcf} \
+--exclude-filtered \
+2>&1>{log}
+
+gatk CountVariants \
+-V {output.filtered_vcf} \
+-L {input.bed} \
 1> {output.tsv} \
-2> {log}
+2>> {log}
         """
 
 
 rule mtb_snpeff_annotation:
     input:
-        vcf=lambda wildcards: SAMPLES[wildcards.sample]["vcf"],
+        vcf=OUT + "/mtb_typing/prepared_files/{sample}.vcf",
         db_dir=OUT + "/mtb_typing/prepared_reference_data/{sample}/snpeff_ref",
         config=OUT + "/mtb_typing/prepared_reference_data/{sample}/snpeff.config",
         dummy=OUT + "/mtb_typing/prepared_reference_data/{sample}/build_snpeff_db.done",

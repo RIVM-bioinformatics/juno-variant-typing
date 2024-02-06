@@ -33,6 +33,41 @@ samtools index {input.bam} 2>&1>>{log}
         """
 
 
+rule copy_sample_vcf:
+    input:
+        vcf=lambda wildcards: SAMPLES[wildcards.sample]["vcf"],
+    output:
+        vcf=temp(OUT + "/mtb_typing/prepared_files/{sample}.vcf"),
+    log:
+        OUT + "/log/copy_sample_vcf/{sample}.log",
+    shell:
+        """
+cp {input.vcf} {output.vcf} 2>&1>{log}
+        """
+
+
+rule index_sample_vcf:
+    input:
+        vcf=OUT + "/mtb_typing/prepared_files/{sample}.vcf",
+    output:
+        tbi=OUT + "/mtb_typing/prepared_files/{sample}.vcf.idx",
+    conda:
+        "../envs/gatk_picard.yaml"
+    container:
+        "docker://broadinstitute/gatk:4.3.0.0"
+    log:
+        OUT + "/log/index_sample_vcf/{sample}.log",
+    message:
+        "Indexing vcf for {wildcards.sample}"
+    threads: config["threads"]["samtools"]
+    resources:
+        mem_gb=config["mem_gb"]["samtools"],
+    shell:
+        """
+gatk IndexFeatureFile -I {input.vcf} 2>&1>>{log}
+        """
+
+
 rule copy_ref:
     input:
         reference=lambda wildcards: SAMPLES[wildcards.sample]["reference"],

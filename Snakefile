@@ -12,6 +12,7 @@ for param in ["threads", "mem_gb"]:
 # print(SAMPLES)
 
 OUT = config["output_dir"]
+INPUT = config["input_dir"]
 
 
 localrules:

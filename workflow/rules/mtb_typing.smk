@@ -230,3 +230,23 @@ python workflow/scripts/filter_res_table.py \
 --ab-column {params.ab_column} \
 --output {output} 2>&1>{log}
         """
+
+
+rule mtb_make_json:
+    input:
+        lineage=OUT + "/mtb_typing/lineage_call/{sample}.tsv",
+        rrs_rrl_snp_counts=OUT
+        + "/mtb_typing/contamination_check/rrs_rrl_contamination/{sample}.tsv",
+        picard_collectwgsmetrics=INPUT + "/qc_mapping/CollectWgsMetrics/{sample}.txt",
+    output:
+        json=OUT + "/mtb_typing/seq_exp_json/{sample}.json",
+    log:
+        OUT + "/log/mtb_make_json/{sample}.log",
+    shell:
+        """
+python workflow/scripts/create_tb_json.py \
+--lineage-call {input.lineage} \
+--rrs-rrl-snp-counts {input.rrs_rrl_snp_counts} \
+--picard {input.picard_collectwgsmetrics} \
+--output {output.json} 2>&1>{log}
+        """

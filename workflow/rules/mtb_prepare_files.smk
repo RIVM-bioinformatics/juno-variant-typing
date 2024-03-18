@@ -17,7 +17,7 @@ rule index_sample_bam:
     output:
         bai=temp(OUT + "/mtb_typing/prepared_files/{sample}.bam.bai"),
     container:
-        "docker://staphb/samtools:1.17"
+        "docker://staphb/samtools:1.19"
     conda:
         "../envs/gatk_picard.yaml"
     log:
@@ -141,7 +141,7 @@ rule samtools_index_ref:
     conda:
         "../envs/bwa_samtools.yaml"
     container:
-        "docker://staphb/samtools:1.17"
+        "docker://staphb/samtools:1.19"
     log:
         OUT + "/log/samtools_index_ref/{sample}.log",
     message:
@@ -167,7 +167,7 @@ rule prepare_snpeff_config:
     conda:
         "../envs/biopython.yaml"
     container:
-        "docker://pegi3s/biopython:1.78"
+        "docker://quay.io/biocontainers/biopython:1.78"
     log:
         OUT + "/log/prepare_snpeff_config/{sample}.log",
     message:
@@ -196,6 +196,8 @@ rule build_snpeff_db:
         "docker://staphb/snpeff:5.1"
     log:
         OUT + "/log/build_snpeff_db/{sample}.log",
+    params:
+        use_singularity=config["use_singularity"],
     message:
         "Building SnpEff db for {wildcards.sample}"
     threads: config["threads"]["snpeff"]
@@ -203,11 +205,17 @@ rule build_snpeff_db:
         mem_gb=config["mem_gb"]["snpeff"],
     shell:
         """
+if [ {params.use_singularity} == True ]
+then
+    EXEC=snpeff
+else
+    EXEC=snpEff
+fi
 WORKDIR=$(dirname {input.config})
 CONFIG_NAME=$(basename {input.config})
 DB_NAME=$(basename {input.db_dir})
 cd $WORKDIR
-snpeff build -genbank -v $DB_NAME -config $CONFIG_NAME -dataDir . 2>&1>{log} 
+$EXEC build -genbank -v $DB_NAME -config $CONFIG_NAME -dataDir . 2>&1>{log} 
         """
 
 

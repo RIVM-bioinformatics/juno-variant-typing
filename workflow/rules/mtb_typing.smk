@@ -107,6 +107,8 @@ rule mtb_snpeff_annotation:
         "docker://staphb/snpeff:5.1"
     log:
         OUT + "/log/mtb_snpeff_annotation/{sample}.log",
+    params:
+        use_singularity=config["use_singularity"],
     message:
         "Running SnpEff for {wildcards.sample}"
     threads: config["threads"]["snpeff"]
@@ -114,9 +116,15 @@ rule mtb_snpeff_annotation:
         mem_gb=config["mem_gb"]["snpeff"],
     shell:
         """
+if [ {params.use_singularity} == True ]
+then
+    EXEC=snpeff
+else
+    EXEC=snpEff
+fi
 WORKDIR=$(dirname {input.db_dir})
 DB_NAME=$(basename {input.db_dir})
-snpeff ann -c {input.config} -dataDir $WORKDIR -stats {output.stats} -noLog -o gatk -ud 0 $DB_NAME {input.vcf} > {output.vcf} 2>{log}
+$EXEC ann -c {input.config} -dataDir $WORKDIR -stats {output.stats} -noLog -o gatk -ud 0 $DB_NAME {input.vcf} > {output.vcf} 2>{log}
         """
 
 
@@ -131,7 +139,7 @@ rule mtb_annotate_ab_positions:
     conda:
         "../envs/bcftools.yaml"
     container:
-        "docker://staphb/bcftools:1.16"
+        "docker://staphb/bcftools:1.19"
     params:
         base_annotations="CHROM,POS",
         extra_annotations=lambda wildcards: SAMPLES[wildcards.sample][

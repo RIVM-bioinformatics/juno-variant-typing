@@ -1,6 +1,7 @@
 threads:
     other: 1
     bcftools: 1
+    bedtools: 1
     bwa: 1
     fast-lineage-caller: 1
     gatk: 1
@@ -10,6 +11,7 @@ threads:
 mem_gb:
     other: 4
     bcftools: 4
+    bedtools: 4
     bwa: 4
     fast-lineage-caller: 4
     gatk: 4

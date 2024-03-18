@@ -46,7 +46,7 @@ cp {input.vcf} {output.vcf} 2>&1>{log}
         """
 
 
-rule index_sample_vcf:
+rule index_sample_vcf_gatk:
     input:
         vcf=OUT + "/mtb_typing/prepared_files/{sample}.vcf",
     output:

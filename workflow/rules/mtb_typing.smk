@@ -168,7 +168,7 @@ rule mtb_annotated_vcf_to_table:
     input:
         vcf=OUT + "/mtb_typing/annotated_vcf/{sample}.vcf",
     output:
-        tsv=temp(OUT + "/mtb_typing/annotated_variants/raw_{sample}.tsv"),
+        tsv=temp(OUT + "/mtb_typing/annotated_variants/raw/{sample}.tsv"),
     conda:
         "../envs/gatk_picard.yaml"
     container:
@@ -206,7 +206,7 @@ $FIELDS \
 
 rule postprocess_variant_table:
     input:
-        tsv=OUT + "/mtb_typing/annotated_variants/raw_{sample}.tsv",
+        tsv=OUT + "/mtb_typing/annotated_variants/raw/{sample}.tsv",
     output:
         tsv=OUT + "/mtb_typing/annotated_variants/{sample}.tsv",
     log:
@@ -258,3 +258,100 @@ python workflow/scripts/create_tb_json.py \
 --picard {input.picard_collectwgsmetrics} \
 --output {output.json} 2>&1>{log}
         """
+
+
+module consensus_workflow:
+    config:
+        config
+    snakefile:
+        "consensus.smk"
+
+
+## Rename reference contig to sample
+
+
+use rule mark_variants_by_proximity from consensus_workflow with:
+    input:
+        vcf=OUT + "/mtb_typing/prepared_files/{sample}.vcf",
+    output:
+        bed=OUT + "/mtb_typing/prepared_files/{sample}.no_prox.bed",
+    log:
+        OUT + "/log/mark_variants_by_proximity/{sample}.log",
+
+
+use rule subset_fixed_snps_mnps_from_vcf from consensus_workflow with:
+    input:
+        vcf=OUT + "/mtb_typing/prepared_files/{sample}.vcf",
+    output:
+        vcf=OUT + "/mtb_typing/prepared_files/{sample}.fixed_snps_mnps.vcf",
+    log:
+        OUT + "/log/subset_fixed_snps_mnps_from_vcf/{sample}.log",
+
+
+use rule subset_low_confidence_variants_from_vcf from consensus_workflow with:
+    input:
+        vcf=OUT + "/mtb_typing/prepared_files/{sample}.vcf",
+    output:
+        vcf=OUT + "/mtb_typing/prepared_files/{sample}.lowconf.vcf",
+    log:
+        OUT + "/log/subset_low_confidence_variants_from_vcf/{sample}.log",
+
+
+use rule zip_and_index_sample_vcf_bcftools from consensus_workflow with:
+    input:
+        vcf=OUT + "/mtb_typing/prepared_files/{sample}.fixed_snps_mnps.vcf",
+    output:
+        vcf_gz=OUT + "/mtb_typing/prepared_files/{sample}.fixed_snps_mnps.vcf.gz",
+        tbi=OUT + "/mtb_typing/prepared_files/{sample}.fixed_snps_mnps.vcf.gz.tbi",
+    log:
+        OUT + "/log/zip_and_index_sample_vcf_bcftools/{sample}.log",
+
+
+use rule introduce_mutations_to_reference from consensus_workflow with:
+    input:
+        vcf_gz=OUT + "/mtb_typing/prepared_files/{sample}.fixed_snps_mnps.vcf.gz",
+        tbi=OUT + "/mtb_typing/prepared_files/{sample}.fixed_snps_mnps.vcf.gz.tbi",
+        reference=OUT + "/mtb_typing/prepared_files/{sample}_ref.fasta",
+    output:
+        fasta=OUT + "/mtb_typing/consensus/raw/{sample}.fasta",
+    log:
+        OUT + "/log/introduce_mutations_to_reference/{sample}.log",
+
+
+use rule mask_fasta_on_depth_from_bam from consensus_workflow with:
+    input:
+        bam=OUT + "/mtb_typing/prepared_files/{sample}.bam",
+        bai=OUT + "/mtb_typing/prepared_files/{sample}.bam.bai",
+        fasta=OUT + "/mtb_typing/consensus/raw/{sample}.fasta",
+    output:
+        fasta=OUT + "/mtb_typing/consensus/depth_masked/{sample}.fasta",
+    log:
+        OUT + "/log/mask_fasta_on_depth_from_bam/{sample}.log",
+
+
+use rule mask_fasta_based_on_bed_or_vcf from consensus_workflow as mask_fasta_on_low_confidence_variants with:
+    input:
+        features=OUT + "/mtb_typing/prepared_files/{sample}.lowconf.vcf",
+        fasta=OUT + "/mtb_typing/consensus/depth_masked/{sample}.fasta",
+    output:
+        fasta=OUT + "/mtb_typing/consensus/depth_masked_low_conf_masked/{sample}.fasta",
+    log:
+        OUT + "/log/mask_fasta_on_low_confidence_variants/{sample}.log",
+
+
+use rule mask_fasta_based_on_bed_or_vcf from consensus_workflow as mask_fasta_on_proximity_variants with:
+    input:
+        features=OUT + "/mtb_typing/prepared_files/{sample}.no_prox.bed",
+        fasta=OUT + "/mtb_typing/consensus/depth_masked_low_conf_masked/{sample}.fasta",
+    output:
+        fasta=OUT + "/mtb_typing/consensus/depth_masked_low_conf_masked_proxmask/{sample}.fasta",
+    log:
+        OUT + "/log/mask_fasta_on_proximity_variants/{sample}.log",
+
+use rule replace_fasta_header from consensus_workflow with:
+    input:
+        fasta=OUT + "/mtb_typing/consensus/depth_masked_low_conf_masked_proxmask/{sample}.fasta",
+    output:
+        fasta=OUT + "/mtb_typing/consensus/{sample}.fasta",
+    log:
+        OUT + "/log/replace_fasta_header/{sample}.log",

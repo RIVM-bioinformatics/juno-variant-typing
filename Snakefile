@@ -24,11 +24,22 @@ localrules:
     prepare_ab_table,
     generate_ab_table_header,
     mtb_filter_res_table_positions,
+    audit_version_gatk,
+    audit_version_biopython,
+    audit_version_bcftools,
+    audit_version_bedtools,
+    audit_version_bwa,
+    audit_version_bgzip,
+    audit_version_samtools,
+    audit_version_seqkit,
+    audit_version_snpeff,
+    combine_version,
 
 
 include: "workflow/rules/choose_species.smk"
 include: "workflow/rules/mtb_prepare_files.smk"
 include: "workflow/rules/mtb_typing.smk"
+include: "workflow/rules/audit_version.smk"
 
 
 rule all:
@@ -38,3 +49,4 @@ rule all:
             OUT + "/mtb_typing/annotated_resistance_filtered/{sample}.tsv",
             sample=SAMPLES,
         ),
+        OUT + "/version_audit/versions.txt",

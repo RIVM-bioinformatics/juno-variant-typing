@@ -165,7 +165,6 @@ class JunoVariantTyping(Pipeline):
             "exclusion_file": str(self.exclusion_file),
             "custom_presets_file": str(self.presets_path),
             "use_singularity": str(self.snakemake_args["use_singularity"]),
-
             # "example": str(self.example), # other user parameters can be included in user_parameters.yaml here
         }
 

@@ -8,6 +8,7 @@ rule audit_version_gatk:
     shell:
         "gatk --version > {output}"
 
+
 rule audit_version_biopython:
     output:
         OUT + "/version_audit/biopython.txt",
@@ -20,6 +21,7 @@ rule audit_version_biopython:
         python3 -c 'import Bio; print(Bio.__version__)' > {output}
         """
 
+
 rule audit_version_bcftools:
     output:
         OUT + "/version_audit/bcftools.txt",
@@ -29,6 +31,7 @@ rule audit_version_bcftools:
         "../envs/bcftools.yaml"
     shell:
         "bcftools --version > {output}"
+
 
 rule audit_version_bedtools:
     output:
@@ -40,6 +43,7 @@ rule audit_version_bedtools:
     shell:
         "bedtools --version > {output}"
 
+
 rule audit_version_bwa:
     output:
         OUT + "/version_audit/bwa.txt",
@@ -49,6 +53,7 @@ rule audit_version_bwa:
         "../envs/bwa_samtools.yaml"
     shell:
         "bwa 2>&1 | grep Version > {output} || true"
+
 
 rule audit_version_bgzip:
     output:
@@ -60,6 +65,7 @@ rule audit_version_bgzip:
     shell:
         "bgzip --version > {output}"
 
+
 rule audit_version_samtools:
     output:
         OUT + "/version_audit/samtools.txt",
@@ -69,6 +75,7 @@ rule audit_version_samtools:
         "../envs/bwa_samtools.yaml"
     shell:
         "samtools --version > {output}"
+
 
 rule audit_version_seqkit:
     output:
@@ -80,6 +87,7 @@ rule audit_version_seqkit:
     shell:
         "seqkit version > {output}"
 
+
 rule audit_version_snpeff:
     output:
         OUT + "/version_audit/snpeff.txt",
@@ -88,7 +96,7 @@ rule audit_version_snpeff:
     conda:
         "../envs/snpeff.yaml"
     params:
-        use_singularity = config["use_singularity"]
+        use_singularity=config["use_singularity"],
     shell:
         """
 if [ {params.use_singularity} == "True" ]
@@ -99,6 +107,7 @@ else
 fi
 $EXEC -version > {output}
         """
+
 
 rule combine_version:
     input:

@@ -1,0 +1,24 @@
+mycobacterium_tuberculosis:
+  single_copy_bed: files/mtb/coll_positions.bed
+  count_mutations_bed: files/mtb/rrs_rrl.bed
+  reference_genbank: /mnt/db/juno/variant-typing/mtb/NC_000962.3.gbk
+  resistance_variants_csv: /mnt/db/juno/variant-typing/mtb/reslist.csv
+  resistance_variants_columns: ref_reslist,alt_reslist,gene,drug,RIVM,TP,FP,confidence,variant_common_name
+  resistance_variants_ab_column: drug
+  consensus:
+    proximity_threshold: 12
+    AF_threshold: 0.8
+    tlod_threshold: 10
+    masking_depth: 10
+other:
+  single_copy_bed: null
+  count_mutations_bed: null
+  reference_genbank: null
+  resistance_variants_csv: null
+  resistance_variants_columns: null
+  resistance_variants_ab_column: null
+  consensus:
+    proximity_threshold: null
+    AF_threshold: null
+    tlod_threshold: null
+    masking_depth: null

@@ -1,5 +1,5 @@
-# Juno-Template
-A template pipeline where the other juno pipelines are based on.
+# Juno-variant-typing
+Juno pipeline for the interpretation of variants identified through reference-based mapping.
 
 ## Contribution guidelines
 Juno pipelines use a [feature branch workflow](https://www.atlassian.com/git/tutorials/comparing-workflows/feature-branch-workflow). To work on features, create a branch from the `main` branch to make changes to. This branch can be merged to the main branch via a pull request. Hotfixes for bugs can be committed to the `main` branch.

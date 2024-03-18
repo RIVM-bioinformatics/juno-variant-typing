@@ -1,0 +1,9 @@
+channels:
+- conda-forge
+- bioconda
+- nodefaults
+dependencies:
+- gatk4=4.3.0.*
+- picard=2.27.*
+- samtools=1.19.*
+- bedtools=2.30.*

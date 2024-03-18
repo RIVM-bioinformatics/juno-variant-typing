@@ -1,0 +1,4 @@
+genomepos;gene;drug;ref;allele
+50;geneA;drugA;A;T
+5000;geneB;drugB;A;T
+20000;geneC;drugC;T;C

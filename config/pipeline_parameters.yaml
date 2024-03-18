@@ -1,5 +1,19 @@
 threads:
-    template_rule: 1
+    other: 1
+    bcftools: 1
+    bedtools: 1
+    bwa: 1
+    fast-lineage-caller: 1
+    gatk: 1
+    samtools: 1
+    snpeff: 1
 
 mem_gb:
-    template_rule: 1
+    other: 4
+    bcftools: 4
+    bedtools: 4
+    bwa: 4
+    fast-lineage-caller: 4
+    gatk: 4
+    samtools: 4
+    snpeff: 8

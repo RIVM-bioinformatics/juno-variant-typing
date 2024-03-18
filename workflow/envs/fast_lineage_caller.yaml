@@ -1,4 +1,7 @@
 channels:
 - ejfresch
+- conda-forge
+- nodefaults
 dependencies:
 - fast-lineage-caller
+- python

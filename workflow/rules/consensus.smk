@@ -148,6 +148,7 @@ rule introduce_mutations_to_reference:
 bcftools consensus \
 -f {input.reference} \
 -o {output.fasta} \
+-s - \
 {input.vcf_gz} \
 2>&1>{log}
         """

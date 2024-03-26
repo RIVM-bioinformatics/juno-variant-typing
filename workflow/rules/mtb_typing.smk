@@ -128,45 +128,9 @@ $EXEC ann -c {input.config} -dataDir $WORKDIR -stats {output.stats} -noLog -o ga
         """
 
 
-rule mtb_annotate_ab_positions:
-    input:
-        vcf=OUT + "/mtb_typing/snpeff/{sample}.vcf",
-        compressed_table=OUT
-        + "/mtb_typing/prepared_reference_data/{sample}/ab_table.tab.gz",
-        header=OUT + "/mtb_typing/prepared_reference_data/{sample}/ab_table.header",
-    output:
-        vcf=OUT + "/mtb_typing/annotated_vcf/{sample}.vcf",
-    conda:
-        "../envs/bcftools.yaml"
-    container:
-        "docker://staphb/bcftools:1.19"
-    params:
-        base_annotations="CHROM,POS",
-        extra_annotations=lambda wildcards: SAMPLES[wildcards.sample][
-            "resistance_variants_columns"
-        ],
-    log:
-        OUT + "/log/mtb_annotate_ab_positions/{sample}.log",
-    message:
-        "Annotating variants with AMR for {wildcards.sample}"
-    threads: config["threads"]["bcftools"]
-    resources:
-        mem_gb=config["mem_gb"]["bcftools"],
-    shell:
-        """
-bcftools annotate \
--a {input.compressed_table} \
--h {input.header} \
--c {params.base_annotations},{params.extra_annotations:q} \
-{input.vcf} \
-1> {output.vcf} \
-2> {log}
-        """
-
-
 rule mtb_annotated_vcf_to_table:
     input:
-        vcf=OUT + "/mtb_typing/annotated_vcf/{sample}.vcf",
+        vcf=OUT + "/mtb_typing/snpeff/{sample}.vcf",
     output:
         tsv=temp(OUT + "/mtb_typing/annotated_variants/raw/{sample}.tsv"),
     conda:
@@ -187,7 +151,7 @@ rule mtb_annotated_vcf_to_table:
         mem_gb=config["mem_gb"]["gatk"],
     shell:
         """
-FIELDS=$(python workflow/scripts/print_fields_VariantsToTable.py {params.metadata:q},{params.effect_column:q})
+# FIELDS=$(python workflow/scripts/print_fields_VariantsToTable.py {params.metadata:q},{params.effect_column:q})
 gatk VariantsToTable \
 -V {input.vcf} \
 --show-filtered \
@@ -199,25 +163,78 @@ gatk VariantsToTable \
 -F DP \
 -F FILTER \
 -GF AF \
-$FIELDS \
+-F {params.effect_column} \
 -O {output.tsv} 2>&1>{log}
         """
 
 
-rule postprocess_variant_table:
+rule mtb_annotate_ab_positions:
     input:
         tsv=OUT + "/mtb_typing/annotated_variants/raw/{sample}.tsv",
+        reslist=lambda wildcards: SAMPLES[wildcards.sample]["resistance_variants_csv"]
+        # compressed_table=OUT
+        # + "/mtb_typing/prepared_reference_data/{sample}/ab_table.tab.gz",
+        # header=OUT + "/mtb_typing/prepared_reference_data/{sample}/ab_table.header",
+
     output:
         tsv=OUT + "/mtb_typing/annotated_variants/{sample}.tsv",
+    # conda:
+    #     "../envs/bcftools.yaml"
+    # container:
+    #     "docker://staphb/bcftools:1.19"
+    params:
+        # base_annotations="CHROM,POS",
+        # extra_annotations=lambda wildcards: SAMPLES[wildcards.sample][
+        #     "resistance_variants_columns"
+        # ],
+        # extra_annotations_merge_logic=lambda wildcards: ",".join([f"{colname}:append" for colname in SAMPLES[wildcards.sample][
+        #     "resistance_variants_columns"
+        # ].split(",")])
+        merge_keys="POS"
     log:
-        OUT + "/log/postprocess_variant_table/{sample}.log",
+        OUT + "/log/mtb_annotate_ab_positions/{sample}.log",
+    message:
+        "Annotating variants with AMR for {wildcards.sample}"
+    threads: config["threads"]["other"]
+    resources:
+        mem_gb=config["mem_gb"]["other"],
     shell:
         """
-python workflow/scripts/postprocess_variant_table.py \
---input {input} \
+python python workflow/scripts/postprocess_variant_table.py \
+--input {input.tsv} \
+--reference_data {input.reslist} \
+--merge_keys {params.merge_keys} \
 --output {output} \
 2>&1>{log}
+
+# bcftools annotate \
+# -a {input.compressed_table} \
+# -h {input.header} \
+# -c {params.base_annotations},{params.extra_annotations:q} \
+# --merge-logic {params.extra_annotations_merge_logic} \
+# {input.vcf} \
+# 1> {output.vcf} \
+# 2> {log}
         """
+
+
+
+
+
+# rule postprocess_variant_table:
+#     input:
+#         tsv=OUT + "/mtb_typing/annotated_variants/raw/{sample}.tsv",
+#     output:
+#         tsv=OUT + "/mtb_typing/annotated_variants/{sample}.tsv",
+#     log:
+#         OUT + "/log/postprocess_variant_table/{sample}.log",
+#     shell:
+#         """
+# python workflow/scripts/postprocess_variant_table.py \
+# --input {input} \
+# --output {output} \
+# 2>&1>{log}
+#         """
 
 
 rule mtb_filter_res_table_positions:

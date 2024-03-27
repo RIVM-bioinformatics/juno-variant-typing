@@ -128,45 +128,9 @@ $EXEC ann -c {input.config} -dataDir $WORKDIR -stats {output.stats} -noLog -o ga
         """
 
 
-rule mtb_annotate_ab_positions:
-    input:
-        vcf=OUT + "/mtb_typing/snpeff/{sample}.vcf",
-        compressed_table=OUT
-        + "/mtb_typing/prepared_reference_data/{sample}/ab_table.tab.gz",
-        header=OUT + "/mtb_typing/prepared_reference_data/{sample}/ab_table.header",
-    output:
-        vcf=OUT + "/mtb_typing/annotated_vcf/{sample}.vcf",
-    conda:
-        "../envs/bcftools.yaml"
-    container:
-        "docker://staphb/bcftools:1.19"
-    params:
-        base_annotations="CHROM,POS",
-        extra_annotations=lambda wildcards: SAMPLES[wildcards.sample][
-            "resistance_variants_columns"
-        ],
-    log:
-        OUT + "/log/mtb_annotate_ab_positions/{sample}.log",
-    message:
-        "Annotating variants with AMR for {wildcards.sample}"
-    threads: config["threads"]["bcftools"]
-    resources:
-        mem_gb=config["mem_gb"]["bcftools"],
-    shell:
-        """
-bcftools annotate \
--a {input.compressed_table} \
--h {input.header} \
--c {params.base_annotations},{params.extra_annotations:q} \
-{input.vcf} \
-1> {output.vcf} \
-2> {log}
-        """
-
-
 rule mtb_annotated_vcf_to_table:
     input:
-        vcf=OUT + "/mtb_typing/annotated_vcf/{sample}.vcf",
+        vcf=OUT + "/mtb_typing/snpeff/{sample}.vcf",
     output:
         tsv=temp(OUT + "/mtb_typing/annotated_variants/raw/{sample}.tsv"),
     conda:
@@ -187,7 +151,6 @@ rule mtb_annotated_vcf_to_table:
         mem_gb=config["mem_gb"]["gatk"],
     shell:
         """
-FIELDS=$(python workflow/scripts/print_fields_VariantsToTable.py {params.metadata:q},{params.effect_column:q})
 gatk VariantsToTable \
 -V {input.vcf} \
 --show-filtered \
@@ -199,22 +162,36 @@ gatk VariantsToTable \
 -F DP \
 -F FILTER \
 -GF AF \
-$FIELDS \
+-F {params.effect_column} \
 -O {output.tsv} 2>&1>{log}
         """
 
 
-rule postprocess_variant_table:
+rule mtb_annotate_ab_positions:
     input:
         tsv=OUT + "/mtb_typing/annotated_variants/raw/{sample}.tsv",
+        reslist=lambda wildcards: SAMPLES[wildcards.sample]["resistance_variants_csv"],
     output:
         tsv=OUT + "/mtb_typing/annotated_variants/{sample}.tsv",
+    params:
+        merge_cols="CHROM,POS",
+        keep_cols=lambda wildcards: SAMPLES[wildcards.sample][
+            "resistance_variants_columns"
+        ],
     log:
-        OUT + "/log/postprocess_variant_table/{sample}.log",
+        OUT + "/log/mtb_annotate_ab_positions/{sample}.log",
+    message:
+        "Annotating variants with AMR for {wildcards.sample}"
+    threads: config["threads"]["other"]
+    resources:
+        mem_gb=config["mem_gb"]["other"],
     shell:
         """
 python workflow/scripts/postprocess_variant_table.py \
---input {input} \
+--input {input.tsv} \
+--reference_data {input.reslist} \
+--merge_cols {params.merge_cols} \
+--keep_cols {params.keep_cols} \
 --output {output} \
 2>&1>{log}
         """
@@ -267,9 +244,6 @@ module consensus_workflow:
         "consensus.smk"
 
 
-## Rename reference contig to sample
-
-
 use rule mark_variants_by_proximity from consensus_workflow with:
     input:
         vcf=OUT + "/mtb_typing/prepared_files/{sample}.vcf",
@@ -279,13 +253,13 @@ use rule mark_variants_by_proximity from consensus_workflow with:
         OUT + "/log/mark_variants_by_proximity/{sample}.log",
 
 
-use rule subset_fixed_snps_mnps_from_vcf from consensus_workflow with:
+use rule subset_fixed_snps_from_vcf from consensus_workflow with:
     input:
         vcf=OUT + "/mtb_typing/prepared_files/{sample}.vcf",
     output:
-        vcf=OUT + "/mtb_typing/prepared_files/{sample}.fixed_snps_mnps.vcf",
+        vcf=OUT + "/mtb_typing/prepared_files/{sample}.fixed_snps.vcf",
     log:
-        OUT + "/log/subset_fixed_snps_mnps_from_vcf/{sample}.log",
+        OUT + "/log/subset_fixed_snps_from_vcf/{sample}.log",
 
 
 use rule subset_low_confidence_variants_from_vcf from consensus_workflow with:
@@ -299,18 +273,18 @@ use rule subset_low_confidence_variants_from_vcf from consensus_workflow with:
 
 use rule zip_and_index_sample_vcf_bcftools from consensus_workflow with:
     input:
-        vcf=OUT + "/mtb_typing/prepared_files/{sample}.fixed_snps_mnps.vcf",
+        vcf=OUT + "/mtb_typing/prepared_files/{sample}.fixed_snps.vcf",
     output:
-        vcf_gz=OUT + "/mtb_typing/prepared_files/{sample}.fixed_snps_mnps.vcf.gz",
-        tbi=OUT + "/mtb_typing/prepared_files/{sample}.fixed_snps_mnps.vcf.gz.tbi",
+        vcf_gz=OUT + "/mtb_typing/prepared_files/{sample}.fixed_snps.vcf.gz",
+        tbi=OUT + "/mtb_typing/prepared_files/{sample}.fixed_snps.vcf.gz.tbi",
     log:
         OUT + "/log/zip_and_index_sample_vcf_bcftools/{sample}.log",
 
 
 use rule introduce_mutations_to_reference from consensus_workflow with:
     input:
-        vcf_gz=OUT + "/mtb_typing/prepared_files/{sample}.fixed_snps_mnps.vcf.gz",
-        tbi=OUT + "/mtb_typing/prepared_files/{sample}.fixed_snps_mnps.vcf.gz.tbi",
+        vcf_gz=OUT + "/mtb_typing/prepared_files/{sample}.fixed_snps.vcf.gz",
+        tbi=OUT + "/mtb_typing/prepared_files/{sample}.fixed_snps.vcf.gz.tbi",
         reference=OUT + "/mtb_typing/prepared_files/{sample}_ref.fasta",
     output:
         fasta=OUT + "/mtb_typing/consensus/raw/{sample}.fasta",
@@ -350,10 +324,38 @@ use rule mask_fasta_based_on_bed_or_vcf from consensus_workflow as mask_fasta_on
         OUT + "/log/mask_fasta_on_proximity_variants/{sample}.log",
 
 
+if Path(INPUT + "/variants_raw/mask.bed").is_file():
+
+    use rule mask_fasta_based_on_bed_or_vcf from consensus_workflow as mask_fasta_by_custom_bed with:
+        input:
+            features=INPUT + "/variants_raw/mask.bed",
+            fasta=OUT
+            + "/mtb_typing/consensus/depth_masked_low_conf_masked_proxmask/{sample}.fasta",
+        output:
+            fasta=OUT
+            + "/mtb_typing/consensus/depth_masked_low_conf_masked_proxmask_bedmasked/{sample}.fasta",
+        log:
+            OUT + "/log/mask_fasta_on_custom_bed/{sample}.log",
+
+else:
+
+    rule:
+        input:
+            fasta=OUT
+            + "/mtb_typing/consensus/depth_masked_low_conf_masked_proxmask/{sample}.fasta",
+        output:
+            fasta=OUT
+            + "/mtb_typing/consensus/depth_masked_low_conf_masked_proxmask_bedmasked/{sample}.fasta",
+        shell:
+            """
+cp {input} {output}
+            """
+
+
 use rule replace_fasta_header from consensus_workflow with:
     input:
         fasta=OUT
-        + "/mtb_typing/consensus/depth_masked_low_conf_masked_proxmask/{sample}.fasta",
+        + "/mtb_typing/consensus/depth_masked_low_conf_masked_proxmask_bedmasked/{sample}.fasta",
     output:
         fasta=OUT + "/mtb_typing/consensus/{sample}.fasta",
     log:

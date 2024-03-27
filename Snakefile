@@ -9,8 +9,6 @@ for param in ["threads", "mem_gb"]:
     for k in config[param]:
         config[param][k] = int(config[param][k])
 
-# print(SAMPLES)
-
 
 wildcard_constraints:
     sample="[^/]{1,100}",
@@ -25,10 +23,13 @@ localrules:
     no_typing,
     aggregate_species,
     copy_sample_bam,
+    copy_sample_vcf,
     copy_ref,
     prepare_ab_table,
     generate_ab_table_header,
     mtb_filter_res_table_positions,
+    postprocess_variant_table,
+    mtb_make_json,
     audit_version_gatk,
     audit_version_biopython,
     audit_version_bcftools,

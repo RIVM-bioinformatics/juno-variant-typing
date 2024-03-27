@@ -39,7 +39,7 @@ awk '$4 > 1 {{print $0}}' 1>{output.bed} 2>>{log}
         """
 
 
-rule subset_fixed_snps_mnps_from_vcf:
+rule subset_fixed_snps_from_vcf:
     input:
         vcf="",
     output:
@@ -62,7 +62,8 @@ rule subset_fixed_snps_mnps_from_vcf:
     shell:
         """
 bcftools filter --include "FORMAT/AF>={params.AF_threshold}" {input.vcf} 2>{log} |\
-bcftools filter --include "TYPE='snp' | TYPE='mnp'" \
+bcftools filter --include "TYPE='snp'" |\
+bcftools filter --include "FILTER='PASS'" \
 1>{output.vcf} \
 2>>{log}
         """
@@ -148,6 +149,7 @@ rule introduce_mutations_to_reference:
 bcftools consensus \
 -f {input.reference} \
 -o {output.fasta} \
+-s - \
 {input.vcf_gz} \
 2>&1>{log}
         """

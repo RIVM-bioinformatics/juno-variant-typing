@@ -151,7 +151,6 @@ rule mtb_annotated_vcf_to_table:
         mem_gb=config["mem_gb"]["gatk"],
     shell:
         """
-# FIELDS=$(python workflow/scripts/print_fields_VariantsToTable.py {params.metadata:q},{params.effect_column:q})
 gatk VariantsToTable \
 -V {input.vcf} \
 --show-filtered \
@@ -171,25 +170,10 @@ gatk VariantsToTable \
 rule mtb_annotate_ab_positions:
     input:
         tsv=OUT + "/mtb_typing/annotated_variants/raw/{sample}.tsv",
-        reslist=lambda wildcards: SAMPLES[wildcards.sample]["resistance_variants_csv"]
-        # compressed_table=OUT
-        # + "/mtb_typing/prepared_reference_data/{sample}/ab_table.tab.gz",
-        # header=OUT + "/mtb_typing/prepared_reference_data/{sample}/ab_table.header",
-
+        reslist=lambda wildcards: SAMPLES[wildcards.sample]["resistance_variants_csv"],
     output:
         tsv=OUT + "/mtb_typing/annotated_variants/{sample}.tsv",
-    # conda:
-    #     "../envs/bcftools.yaml"
-    # container:
-    #     "docker://staphb/bcftools:1.19"
     params:
-        # base_annotations="CHROM,POS",
-        # extra_annotations=lambda wildcards: SAMPLES[wildcards.sample][
-        #     "resistance_variants_columns"
-        # ],
-        # extra_annotations_merge_logic=lambda wildcards: ",".join([f"{colname}:append" for colname in SAMPLES[wildcards.sample][
-        #     "resistance_variants_columns"
-        # ].split(",")])
         merge_cols="CHROM,POS",
         keep_cols=lambda wildcards: SAMPLES[wildcards.sample][
             "resistance_variants_columns"
@@ -210,35 +194,7 @@ python workflow/scripts/postprocess_variant_table.py \
 --keep_cols {params.keep_cols} \
 --output {output} \
 2>&1>{log}
-
-# bcftools annotate \
-# -a {input.tsv} \
-# -h {input.tsv} \
-# -c {params.merge_cols},{params.merge_cols:q} \
-# --merge-logic {params.merge_cols} \
-# {input.tsv} \
-# 1> {output.tsv} \
-# 2> {log}
         """
-
-
-
-
-
-# rule postprocess_variant_table:
-#     input:
-#         tsv=OUT + "/mtb_typing/annotated_variants/raw/{sample}.tsv",
-#     output:
-#         tsv=OUT + "/mtb_typing/annotated_variants/{sample}.tsv",
-#     log:
-#         OUT + "/log/postprocess_variant_table/{sample}.log",
-#     shell:
-#         """
-# python workflow/scripts/postprocess_variant_table.py \
-# --input {input} \
-# --output {output} \
-# 2>&1>{log}
-#         """
 
 
 rule mtb_filter_res_table_positions:
@@ -286,9 +242,6 @@ module consensus_workflow:
         config
     snakefile:
         "consensus.smk"
-
-
-## Rename reference contig to sample
 
 
 use rule mark_variants_by_proximity from consensus_workflow with:

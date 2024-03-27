@@ -9,8 +9,6 @@ for param in ["threads", "mem_gb"]:
     for k in config[param]:
         config[param][k] = int(config[param][k])
 
-# print(SAMPLES)
-
 
 wildcard_constraints:
     sample="[^/]{1,100}",

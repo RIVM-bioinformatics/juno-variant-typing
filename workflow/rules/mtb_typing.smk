@@ -324,10 +324,38 @@ use rule mask_fasta_based_on_bed_or_vcf from consensus_workflow as mask_fasta_on
         OUT + "/log/mask_fasta_on_proximity_variants/{sample}.log",
 
 
+if Path(INPUT + "/variants_raw/mask.bed").is_file():
+
+    use rule mask_fasta_based_on_bed_or_vcf from consensus_workflow as mask_fasta_by_custom_bed with:
+        input:
+            features=INPUT + "/variants_raw/mask.bed",
+            fasta=OUT
+            + "/mtb_typing/consensus/depth_masked_low_conf_masked_proxmask/{sample}.fasta",
+        output:
+            fasta=OUT
+            + "/mtb_typing/consensus/depth_masked_low_conf_masked_proxmask_bedmasked/{sample}.fasta",
+        log:
+            OUT + "/log/mask_fasta_on_custom_bed/{sample}.log",
+
+else:
+
+    rule:
+        input:
+            fasta=OUT
+            + "/mtb_typing/consensus/depth_masked_low_conf_masked_proxmask/{sample}.fasta",
+        output:
+            fasta=OUT
+            + "/mtb_typing/consensus/depth_masked_low_conf_masked_proxmask_bedmasked/{sample}.fasta",
+        shell:
+            """
+cp {input} {output}
+            """
+
+
 use rule replace_fasta_header from consensus_workflow with:
     input:
         fasta=OUT
-        + "/mtb_typing/consensus/depth_masked_low_conf_masked_proxmask/{sample}.fasta",
+        + "/mtb_typing/consensus/depth_masked_low_conf_masked_proxmask_bedmasked/{sample}.fasta",
     output:
         fasta=OUT + "/mtb_typing/consensus/{sample}.fasta",
     log:

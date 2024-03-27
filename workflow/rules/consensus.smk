@@ -62,7 +62,8 @@ rule subset_fixed_snps_mnps_from_vcf:
     shell:
         """
 bcftools filter --include "FORMAT/AF>={params.AF_threshold}" {input.vcf} 2>{log} |\
-bcftools filter --include "TYPE='snp' | TYPE='mnp'" \
+bcftools filter --include "TYPE='snp'" |\
+bcftools filter --include "FILTER='PASS'" \
 1>{output.vcf} \
 2>>{log}
         """

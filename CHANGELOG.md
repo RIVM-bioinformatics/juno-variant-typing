@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.1.1](https://github.com/RIVM-bioinformatics/juno-variant-typing/compare/v0.1.0...v0.1.1) (2024-03-27)
+
+
+### Bug Fixes
+
+* allow multiple ref data rows merge for single variant ([8c4167e](https://github.com/RIVM-bioinformatics/juno-variant-typing/commit/8c4167e364f209d2712469329077a80007bff857))
+* fix consensus generation ([f967cd5](https://github.com/RIVM-bioinformatics/juno-variant-typing/commit/f967cd5d804c29400dc8fda913f911cd8117406f))
+* force alt regardless of GT ([a23a59b](https://github.com/RIVM-bioinformatics/juno-variant-typing/commit/a23a59b41f9ef75f8ca51a53c5ab77b69aa38b01))
+* merge using python ([ec93c14](https://github.com/RIVM-bioinformatics/juno-variant-typing/commit/ec93c140ccf23de818dba6a2202c97a67ce5f336))
+* set rules to local ([4a5e439](https://github.com/RIVM-bioinformatics/juno-variant-typing/commit/4a5e439f7203342318a87f6e03184de3d11bbeb5))
+
 ## 0.1.0 (2024-03-18)
 
 

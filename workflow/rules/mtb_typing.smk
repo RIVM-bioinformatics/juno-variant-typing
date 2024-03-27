@@ -253,13 +253,13 @@ use rule mark_variants_by_proximity from consensus_workflow with:
         OUT + "/log/mark_variants_by_proximity/{sample}.log",
 
 
-use rule subset_fixed_snps_mnps_from_vcf from consensus_workflow with:
+use rule subset_fixed_snps_from_vcf from consensus_workflow with:
     input:
         vcf=OUT + "/mtb_typing/prepared_files/{sample}.vcf",
     output:
-        vcf=OUT + "/mtb_typing/prepared_files/{sample}.fixed_snps_mnps.vcf",
+        vcf=OUT + "/mtb_typing/prepared_files/{sample}.fixed_snps.vcf",
     log:
-        OUT + "/log/subset_fixed_snps_mnps_from_vcf/{sample}.log",
+        OUT + "/log/subset_fixed_snps_from_vcf/{sample}.log",
 
 
 use rule subset_low_confidence_variants_from_vcf from consensus_workflow with:
@@ -273,18 +273,18 @@ use rule subset_low_confidence_variants_from_vcf from consensus_workflow with:
 
 use rule zip_and_index_sample_vcf_bcftools from consensus_workflow with:
     input:
-        vcf=OUT + "/mtb_typing/prepared_files/{sample}.fixed_snps_mnps.vcf",
+        vcf=OUT + "/mtb_typing/prepared_files/{sample}.fixed_snps.vcf",
     output:
-        vcf_gz=OUT + "/mtb_typing/prepared_files/{sample}.fixed_snps_mnps.vcf.gz",
-        tbi=OUT + "/mtb_typing/prepared_files/{sample}.fixed_snps_mnps.vcf.gz.tbi",
+        vcf_gz=OUT + "/mtb_typing/prepared_files/{sample}.fixed_snps.vcf.gz",
+        tbi=OUT + "/mtb_typing/prepared_files/{sample}.fixed_snps.vcf.gz.tbi",
     log:
         OUT + "/log/zip_and_index_sample_vcf_bcftools/{sample}.log",
 
 
 use rule introduce_mutations_to_reference from consensus_workflow with:
     input:
-        vcf_gz=OUT + "/mtb_typing/prepared_files/{sample}.fixed_snps_mnps.vcf.gz",
-        tbi=OUT + "/mtb_typing/prepared_files/{sample}.fixed_snps_mnps.vcf.gz.tbi",
+        vcf_gz=OUT + "/mtb_typing/prepared_files/{sample}.fixed_snps.vcf.gz",
+        tbi=OUT + "/mtb_typing/prepared_files/{sample}.fixed_snps.vcf.gz.tbi",
         reference=OUT + "/mtb_typing/prepared_files/{sample}_ref.fasta",
     output:
         fasta=OUT + "/mtb_typing/consensus/raw/{sample}.fasta",

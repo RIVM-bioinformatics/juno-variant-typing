@@ -39,7 +39,7 @@ awk '$4 > 1 {{print $0}}' 1>{output.bed} 2>>{log}
         """
 
 
-rule subset_fixed_snps_mnps_from_vcf:
+rule subset_fixed_snps_from_vcf:
     input:
         vcf="",
     output:

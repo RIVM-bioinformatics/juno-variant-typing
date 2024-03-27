@@ -9,8 +9,8 @@ import pandas as pd
 parser = argparse.ArgumentParser()
 parser.add_argument("--input", help="Input tsv file", type=Path)
 parser.add_argument("--reference_data", help="Reference data csv file", type=Path)
-parser.add_argument("--merge_keys", help="Columns to merge on", nargs="+", type=str)
-parser.add_argument("--keep_cols", help="Comme separated list of columns to keep", type=str)
+parser.add_argument("--merge_cols", help="Comma separated list of columns to merge on", type=str)
+parser.add_argument("--keep_cols", help="Comma separated list of columns to keep from reference data", type=str)
 parser.add_argument("--output", help="Output tsv file", type=Path)
 args = parser.parse_args()
 
@@ -108,8 +108,8 @@ def main(args):
     df = pd.read_csv(args.input, sep="\t")
     df_ref = pd.read_csv(args.reference_data, sep=";")
     # Keep only the columns that are needed
-    all_keep_cols = args.merge_keys + args.keep_cols.split(",")
-    df_merged = pd.merge(df, df_ref[all_keep_cols], on=args.merge_keys, how="left")
+    all_keep_cols = args.merge_cols.split(",") + args.keep_cols.split(",")
+    df_merged = pd.merge(df, df_ref[all_keep_cols], on=args.merge_cols.split(","), how="left")
     df_merged_eff_parsed = parse_eff_field(df_merged)
     df_merged_eff_parsed_renamed = rename_columns(df_merged_eff_parsed, rename_dict)
     df_final = df_merged_eff_parsed_renamed.fillna("-").replace("", "-")

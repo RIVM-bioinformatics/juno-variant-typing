@@ -219,67 +219,67 @@ $EXEC build -genbank -v $DB_NAME -config $CONFIG_NAME -dataDir . 2>&1>{log}
         """
 
 
-rule prepare_ab_table:
-    input:
-        csv=lambda wildcards: SAMPLES[wildcards.sample]["resistance_variants_csv"],
-    output:
-        uncompressed=temp(
-            OUT + "/mtb_typing/prepared_reference_data/{sample}/ab_table.tab"
-        ),
-    params:
-        POS="genomepos",
-        metadata=lambda wildcards: SAMPLES[wildcards.sample][
-            "resistance_variants_columns"
-        ],
-    log:
-        OUT + "/log/prepare_ab_table/{sample}.log",
-    message:
-        "Coverting AMR table for {wildcards.sample}"
-    shell:
-        """
-python workflow/scripts/convert_ab_table.py \
---force-chrom NC_000962.3 \
---POS {params.POS} \
---other {params.metadata:q} \
-{input} \
-{output.uncompressed} 2>&1>{log}
-        """
+# rule prepare_ab_table:
+#     input:
+#         csv=lambda wildcards: SAMPLES[wildcards.sample]["resistance_variants_csv"],
+#     output:
+#         uncompressed=temp(
+#             OUT + "/mtb_typing/prepared_reference_data/{sample}/ab_table.tab"
+#         ),
+#     params:
+#         POS="genomepos",
+#         metadata=lambda wildcards: SAMPLES[wildcards.sample][
+#             "resistance_variants_columns"
+#         ],
+#     log:
+#         OUT + "/log/prepare_ab_table/{sample}.log",
+#     message:
+#         "Coverting AMR table for {wildcards.sample}"
+#     shell:
+#         """
+# python workflow/scripts/convert_ab_table.py \
+# --force-chrom NC_000962.3 \
+# --POS {params.POS} \
+# --other {params.metadata:q} \
+# {input} \
+# {output.uncompressed} 2>&1>{log}
+#         """
 
 
-rule compress_index_ab_table:
-    input:
-        uncompressed=OUT + "/mtb_typing/prepared_reference_data/{sample}/ab_table.tab",
-    output:
-        compressed=OUT + "/mtb_typing/prepared_reference_data/{sample}/ab_table.tab.gz",
-        index=OUT + "/mtb_typing/prepared_reference_data/{sample}/ab_table.tab.gz.tbi",
-    conda:
-        "../envs/bcftools.yaml"
-    container:
-        "docker://staphb/htslib:1.17"
-    log:
-        OUT + "/log/compress_index_ab_table/{sample}.log",
-    message:
-        "Compressing and indexing AMR table for {wildcards.sample}"
-    threads: config["threads"]["bcftools"]
-    resources:
-        mem_gb=config["mem_gb"]["bcftools"],
-    shell:
-        """
-bgzip -c {input.uncompressed} 1> {output.compressed} 2>{log}
-tabix -s 1 -b 2 -e 2 {output.compressed} 2>&1>>{log}
-        """
+# rule compress_index_ab_table:
+#     input:
+#         uncompressed=OUT + "/mtb_typing/prepared_reference_data/{sample}/ab_table.tab",
+#     output:
+#         compressed=OUT + "/mtb_typing/prepared_reference_data/{sample}/ab_table.tab.gz",
+#         index=OUT + "/mtb_typing/prepared_reference_data/{sample}/ab_table.tab.gz.tbi",
+#     conda:
+#         "../envs/bcftools.yaml"
+#     container:
+#         "docker://staphb/htslib:1.17"
+#     log:
+#         OUT + "/log/compress_index_ab_table/{sample}.log",
+#     message:
+#         "Compressing and indexing AMR table for {wildcards.sample}"
+#     threads: config["threads"]["bcftools"]
+#     resources:
+#         mem_gb=config["mem_gb"]["bcftools"],
+#     shell:
+#         """
+# bgzip -c {input.uncompressed} 1> {output.compressed} 2>{log}
+# tabix -s 1 -b 2 -e 2 {output.compressed} 2>&1>>{log}
+#         """
 
 
-rule generate_ab_table_header:
-    output:
-        OUT + "/mtb_typing/prepared_reference_data/{sample}/ab_table.header",
-    params:
-        columns=lambda wildcards: SAMPLES[wildcards.sample][
-            "resistance_variants_columns"
-        ],
-    shell:
-        """
-python workflow/scripts/generate_ab_table_header.py \
-{params.columns:q} \
-{output}
-        """
+# rule generate_ab_table_header:
+#     output:
+#         OUT + "/mtb_typing/prepared_reference_data/{sample}/ab_table.header",
+#     params:
+#         columns=lambda wildcards: SAMPLES[wildcards.sample][
+#             "resistance_variants_columns"
+#         ],
+#     shell:
+#         """
+# python workflow/scripts/generate_ab_table_header.py \
+# {params.columns:q} \
+# {output}
+#         """

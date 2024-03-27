@@ -190,7 +190,10 @@ rule mtb_annotate_ab_positions:
         # extra_annotations_merge_logic=lambda wildcards: ",".join([f"{colname}:append" for colname in SAMPLES[wildcards.sample][
         #     "resistance_variants_columns"
         # ].split(",")])
-        merge_keys="POS"
+        merge_cols="CHROM,POS",
+        keep_cols=lambda wildcards: SAMPLES[wildcards.sample][
+            "resistance_variants_columns"
+        ],
     log:
         OUT + "/log/mtb_annotate_ab_positions/{sample}.log",
     message:
@@ -200,20 +203,21 @@ rule mtb_annotate_ab_positions:
         mem_gb=config["mem_gb"]["other"],
     shell:
         """
-python python workflow/scripts/postprocess_variant_table.py \
+python workflow/scripts/postprocess_variant_table.py \
 --input {input.tsv} \
 --reference_data {input.reslist} \
---merge_keys {params.merge_keys} \
+--merge_cols {params.merge_cols} \
+--keep_cols {params.keep_cols} \
 --output {output} \
 2>&1>{log}
 
 # bcftools annotate \
-# -a {input.compressed_table} \
-# -h {input.header} \
-# -c {params.base_annotations},{params.extra_annotations:q} \
-# --merge-logic {params.extra_annotations_merge_logic} \
-# {input.vcf} \
-# 1> {output.vcf} \
+# -a {input.tsv} \
+# -h {input.tsv} \
+# -c {params.merge_cols},{params.merge_cols:q} \
+# --merge-logic {params.merge_cols} \
+# {input.tsv} \
+# 1> {output.tsv} \
 # 2> {log}
         """
 

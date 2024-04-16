@@ -5,6 +5,7 @@ mycobacterium_tuberculosis:
   resistance_variants_csv: /mnt/db/juno/variant-typing/mtb/reslist.csv
   resistance_variants_columns: ref_reslist,alt_reslist,gene,drug,RIVM,TP,FP,confidence,variant_common_name
   resistance_variants_ab_column: drug
+  resistance_deletions_bed: files/mtb/resistance_regions_tbdb.bed
   consensus:
     proximity_threshold: 12
     AF_threshold: 0.8

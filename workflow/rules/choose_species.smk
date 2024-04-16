@@ -8,6 +8,7 @@ def choose_species(wildcards):
             OUT + "/mtb_typing/contamination_check/rrs_rrl_contamination/{sample}.tsv",
             OUT + "/mtb_typing/seq_exp_json/{sample}.json",
             OUT + "/mtb_typing/consensus/{sample}.fasta",
+            OUT + "/mtb_typing/annotated_deletions/{sample}.tsv",
         ]
     else:
         return OUT + "/typing_check/{sample}/no_typing_necessary.txt"

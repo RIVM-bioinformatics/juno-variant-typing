@@ -45,16 +45,22 @@ def check_deletions_in_bed(deletions, bed):
 def main(args):
     # Read the deletion table
     deletions = pd.read_csv(args.input, sep='\t', header=0)
-    deletions['interval'] = deletions.apply(lambda x: pd.Interval(x['POS'], x['END'], closed='both'), axis=1)
 
-    # Read the reference bed file
-    bed = pd.read_csv(args.bed, sep='\t', header=None, names=['chrom', 'start', 'end', 'locus_tag', 'gene', 'drugs'])
-    bed['interval'] = bed.apply(lambda x: pd.Interval(x['start'], x['end'], closed='both'), axis=1)
+    if deletions.shape[0] == 0:
+        with open(args.output, 'w') as f:
+            f.write('chrom\tstart\tend\tlocus_tag\tgene\tdrugs\n')
 
-    annotated_deletions = check_deletions_in_bed(deletions, bed)
-    
-    # Write the annotatetd deletion table
-    annotated_deletions.to_csv(args.output, sep='\t', index=False)
+    else:
+        deletions['interval'] = deletions.apply(lambda x: pd.Interval(x['POS'], x['END'], closed='both'), axis=1)
+
+        # Read the reference bed file
+        bed = pd.read_csv(args.bed, sep='\t', header=None, names=['chrom', 'start', 'end', 'locus_tag', 'gene', 'drugs'])
+        bed['interval'] = bed.apply(lambda x: pd.Interval(x['start'], x['end'], closed='both'), axis=1)
+
+        annotated_deletions = check_deletions_in_bed(deletions, bed)
+
+        # Write the annotatetd deletion table
+        annotated_deletions.to_csv(args.output, sep='\t', index=False)
 
 if __name__ == '__main__':
     import argparse

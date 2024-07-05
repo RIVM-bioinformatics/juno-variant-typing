@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.2.0](https://github.com/RIVM-bioinformatics/juno-variant-typing/compare/v0.1.1...v0.2.0) (2024-07-05)
+
+
+### Features
+
+* annotate large deletions based on bed file ([095a2c7](https://github.com/RIVM-bioinformatics/juno-variant-typing/commit/095a2c7f85d450d17c75231463bb61cf85de1815))
+
+
+### Bug Fixes
+
+* dont fail when no deletions are found ([83d143f](https://github.com/RIVM-bioinformatics/juno-variant-typing/commit/83d143fcd472bb79be964fbfafb750a14cdb5ea6))
+
 ## [0.1.1](https://github.com/RIVM-bioinformatics/juno-variant-typing/compare/v0.1.0...v0.1.1) (2024-03-27)
 
 

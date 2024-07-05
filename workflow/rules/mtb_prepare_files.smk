@@ -217,3 +217,21 @@ DB_NAME=$(basename {input.db_dir})
 cd $WORKDIR
 $EXEC build -genbank -v $DB_NAME -config $CONFIG_NAME -dataDir . 2>&1>{log} 
         """
+
+
+rule copy_deletion_vcf:
+    input:
+        vcf=INPUT + "/deletions/{sample}.vcf",
+    output:
+        vcf=OUT + "/mtb_typing/prepared_files/deletions/{sample}.vcf",
+    log:
+        OUT + "/log/copy_deletion_vcf/{sample}.log",
+    message:
+        "Copying deletion vcf for {wildcards.sample}"
+    threads: config["threads"]["bcftools"]
+    resources:
+        mem_gb=config["mem_gb"]["bcftools"],
+    shell:
+        """
+cp {input.vcf} {output.vcf} 2>&1>{log}
+        """

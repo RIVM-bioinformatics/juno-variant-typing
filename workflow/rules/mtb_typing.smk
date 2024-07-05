@@ -237,6 +237,59 @@ python workflow/scripts/create_tb_json.py \
         """
 
 
+rule mtb_deletions_to_table:
+    input:
+        vcf=OUT + "/mtb_typing/prepared_files/deletions/{sample}.vcf",
+    output:
+        OUT + "/mtb_typing/annotated_deletions/raw/{sample}.tsv",
+    conda:
+        "../envs/gatk_picard.yaml"
+    container:
+        "docker://broadinstitute/gatk:4.3.0.0"
+    log:
+        OUT + "/log/mtb_deletions_to_table/{sample}.log",
+    message:
+        "Convert deletion vcf to table for {wildcards.sample}"
+    threads: config["threads"]["gatk"]
+    resources:
+        mem_gb=config["mem_gb"]["gatk"],
+    shell:
+        """
+gatk VariantsToTable \
+-V {input.vcf} \
+--show-filtered \
+-F CHROM \
+-F POS \
+-F END \
+-O {output} 2>&1>{log}
+        """
+
+
+rule mtb_annotate_deletions:
+    input:
+        bed=OUT + "/mtb_typing/annotated_deletions/raw/{sample}.tsv",
+        resistance_deletions_bed=lambda wildcards: SAMPLES[wildcards.sample][
+            "resistance_deletions_bed"
+        ],
+    output:
+        tsv=OUT + "/mtb_typing/annotated_deletions/{sample}.tsv",
+    log:
+        OUT + "/log/mtb_annotate_deletions/{sample}.log",
+    message:
+        "Annotating deletions with AMR for {wildcards.sample}"
+    threads: config["threads"]["other"]
+    resources:
+        mem_gb=config["mem_gb"]["other"],
+    shell:
+        """
+python workflow/scripts/postprocess_deletion_table.py \
+--input {input.bed} \
+--bed {input.resistance_deletions_bed} \
+--output {output} \
+2>&1>{log}
+        """
+
+
 module consensus_workflow:
     config:
         config

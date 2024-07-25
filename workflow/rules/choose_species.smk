@@ -1,7 +1,5 @@
 def choose_species(wildcards):
-    if (SAMPLES[wildcards.sample]["genus"] == "mycobacterium") & (
-        SAMPLES[wildcards.sample]["species"] == "tuberculosis"
-    ):
+    if SAMPLES[wildcards.sample]["species"] == "mycobacterium_tuberculosis":
         return [
             OUT + "/mtb_typing/lineage_call/{sample}.tsv",
             OUT + "/mtb_typing/contamination_check/coll_positions/{sample}.tsv",

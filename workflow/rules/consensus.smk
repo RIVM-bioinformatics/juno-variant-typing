@@ -23,7 +23,8 @@ rule mark_variants_by_proximity:
     log:
         "",
     params:
-        proximity_threshold=lambda wildcards: SAMPLES[wildcards.sample]["consensus_proximity_threshold"
+        proximity_threshold=lambda wildcards: SAMPLES[wildcards.sample][
+            "consensus_proximity_threshold"
         ],
     message:
         "Marking regions with variants too close together for {wildcards.sample}"
@@ -50,7 +51,8 @@ rule subset_fixed_snps_from_vcf:
     log:
         "",
     params:
-        AF_threshold=lambda wildcards: SAMPLES[wildcards.sample]["consensus_AF_threshold"
+        AF_threshold=lambda wildcards: SAMPLES[wildcards.sample][
+            "consensus_AF_threshold"
         ],
     message:
         "Subsetting fixed snps from vcf for {wildcards.sample}"
@@ -79,9 +81,11 @@ rule subset_low_confidence_variants_from_vcf:
     log:
         "",
     params:
-        AF_threshold=lambda wildcards: SAMPLES[wildcards.sample]["consensus_AF_threshold"
+        AF_threshold=lambda wildcards: SAMPLES[wildcards.sample][
+            "consensus_AF_threshold"
         ],
-        tlod_threshold=lambda wildcards: SAMPLES[wildcards.sample]["consensus_tlod_threshold"
+        tlod_threshold=lambda wildcards: SAMPLES[wildcards.sample][
+            "consensus_tlod_threshold"
         ],
     message:
         "Subsetting unfixed snps from vcf for {wildcards.sample}"
@@ -167,7 +171,8 @@ rule mask_fasta_on_depth_from_bam:
     message:
         "Masking low depth regions of {wildcards.sample} consensus genome"
     params:
-        masking_depth=lambda wildcards: SAMPLES[wildcards.sample]["consensus_masking_depth"
+        masking_depth=lambda wildcards: SAMPLES[wildcards.sample][
+            "consensus_masking_depth"
         ],
     threads: config["threads"]["bedtools"]
     resources:

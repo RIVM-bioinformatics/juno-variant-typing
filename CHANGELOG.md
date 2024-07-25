@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.2.1](https://github.com/RIVM-bioinformatics/juno-variant-typing/compare/v0.2.0...v0.2.1) (2024-07-25)
+
+
+### Bug Fixes
+
+* update cli ([0de09d0](https://github.com/RIVM-bioinformatics/juno-variant-typing/commit/0de09d00d738929b61781f4bb8e38e23cafe981b))
+* update cli ([57454c3](https://github.com/RIVM-bioinformatics/juno-variant-typing/commit/57454c375f678d758964893944c85c418308e69d))
+
+
+### Dependencies
+
+* update juno library ([97bb7ad](https://github.com/RIVM-bioinformatics/juno-variant-typing/commit/97bb7adbd6726e5e209922fbb7b4070dc9cdf44c))
+
 ## [0.2.0](https://github.com/RIVM-bioinformatics/juno-variant-typing/compare/v0.1.1...v0.2.0) (2024-07-05)
 
 

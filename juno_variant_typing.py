@@ -8,13 +8,11 @@ Date: 14-06-2023
 """
 
 from pathlib import Path
-import pathlib
 import yaml
 import argparse
-import sys
 from dataclasses import dataclass, field
 from juno_library import Pipeline
-from typing import Optional, Union, Callable
+from typing import Optional, Union, Callable, Tuple
 from version import __package_name__, __version__, __description__
 
 
@@ -60,7 +58,7 @@ def check_number_within_range(
 class JunoVariantTyping(Pipeline):
     pipeline_name: str = __package_name__
     pipeline_version: str = __version__
-    input_type: str = "bam_and_vcf"
+    input_type: Tuple[str, ...] = ("bam", "vcf")
 
     def _add_args_to_parser(self) -> None:
         super()._add_args_to_parser()

@@ -59,6 +59,7 @@ class JunoVariantTyping(Pipeline):
     pipeline_name: str = __package_name__
     pipeline_version: str = __version__
     input_type: Tuple[str, ...] = ("bam", "vcf")
+    species_options = ["mycobacterium_tuberculosis"]
 
     def _add_args_to_parser(self) -> None:
         super()._add_args_to_parser()
@@ -78,22 +79,21 @@ class JunoVariantTyping(Pipeline):
             "provided, it must contain at least one column named 'sample' "
             "with the name of the sample (same than file name but removing "
             "the suffix _R1.fastq.gz), a column called "
-            "'genus' and a column called 'species'. The genus and species "
-            "provided will be used to choose the serotyper and the MLST schema(s)."
-            "If a metadata file is provided, it will overwrite the --species "
-            "argument for the samples present in the metadata file.",
+            "'species'. The species provided will be used to choose the "
+            "typing schemes. If a metadata file is provided, it will "
+            "overwrite the --species argument for the samples present in "
+            "the metadata file.",
         )
         self.add_argument(
             "-s",
             "--species",
-            type=lambda s: s.strip().lower(),
-            nargs=2,
-            default=["mycobacterium", "tuberculosis"],
+            type=str.lower,
+            default="mycobacterium_tuberculosis",
             required=False,
-            metavar=("GENUS", "SPECIES"),
+            metavar="SPECIES",
+            choices=self.species_options,
             help="Species name (any species in the metadata file will overwrite"
-            " this argument). It should be given as two words (e.g. --species "
-            "Mycobacterium tuberculosis)",
+            " this argument). Choose from: {self.species_options}",
         )
         self.add_argument(
             "-d",
@@ -121,9 +121,7 @@ class JunoVariantTyping(Pipeline):
         # Optional arguments are loaded into self here
         self.db_dir: Path = args.db_dir.resolve()
 
-        self.genus: Optional[str]
-        self.species: Optional[str]
-        self.genus, self.species = args.species
+        self.species: Optional[str] = args.species
         self.metadata_file: Path = args.metadata
         self.presets_path: Optional[Path] = args.presets_path
         # self.single_copy_bed: Optional[Path] = args.single_copy_bed
@@ -169,12 +167,11 @@ class JunoVariantTyping(Pipeline):
     def update_sample_dict_with_metadata(self) -> None:
         self.get_metadata_from_csv_file(
             filepath=self.metadata_file,
-            expected_colnames=["sample", "genus", "species"],
+            expected_colnames=["sample", "species"],
         )
         # Add metadata
         for sample in self.sample_dict:
-            if self.genus is not None and self.species is not None:
-                self.sample_dict[sample]["genus"] = self.genus
+            if self.species is not None:
                 self.sample_dict[sample]["species"] = self.species
             else:
                 try:
@@ -186,9 +183,6 @@ class JunoVariantTyping(Pipeline):
                         "samples are present in the metadata file or provide "
                         "a --species argument."
                     )
-                self.sample_dict[sample]["genus"] = (
-                    self.sample_dict[sample]["genus"].strip().lower()
-                )
                 self.sample_dict[sample]["species"] = (
                     self.sample_dict[sample]["species"].strip().lower()
                 )
@@ -201,12 +195,9 @@ class JunoVariantTyping(Pipeline):
             presets_dict = yaml.safe_load(f)
 
         for sample in self.sample_dict:
-            complete_species_name = "_".join(
-                [self.sample_dict[sample]["genus"], self.sample_dict[sample]["species"]]
-            )
-
-            if complete_species_name in presets_dict.keys():
-                for key, value in presets_dict[complete_species_name].items():
+            species_name = self.sample_dict[sample]["species"]
+            if species_name in presets_dict.keys():
+                for key, value in presets_dict[species_name].items():
                     self.sample_dict[sample][key] = value
 
 

@@ -26,6 +26,7 @@ localrules:
     copy_sample_vcf,
     copy_deletion_vcf,
     copy_ref,
+    combine_lineage_typing,
     mtb_filter_res_table_positions,
     mtb_make_json,
     audit_version_gatk,

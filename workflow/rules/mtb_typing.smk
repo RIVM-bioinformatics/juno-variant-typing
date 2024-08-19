@@ -17,6 +17,7 @@ rule mtb_lineage_id:
     shell:
         """
 fast-lineage-caller \
+--count \
 --out {output.tsv} \
 {input.vcf} \
 2>&1>{log}
@@ -64,7 +65,8 @@ rule combine_lineage_typing:
     shell:
         """
 python workflow/scripts/combine_lineage_calls.py \
-{input.lineage_standard} {input.lineage_custom} \
+--standard {input.lineage_standard} \
+--custom {input.lineage_custom} \
 --output {output.tsv} 2>&1>{log}
         """
 

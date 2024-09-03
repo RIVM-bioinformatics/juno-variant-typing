@@ -4,50 +4,85 @@ import argparse
 import pandas as pd
 import re
 
+# define lineage4 sublineages from PMID 30789126
+lineage4_sublineages = ["ghana", "xtype", "haarlem", "ural", "tur", "lam", "stype", "uganda", "cameroon"]
+
+def parse_str_to_dict(lineage_str):
+    lineages = lineage_str.split(",")
+    parsed_data = {}
+    for lineage in lineages:
+        # get name of the lineage
+        lineage_name = lineage.split("(")[0]
+        snp_string = lineage.split("(")[1].split(")")[0]
+        # get the count of identified snps and count of total snps
+        snp_counts = int(snp_string.split("/")[0])
+        snp_total = int(snp_string.split("/")[1])
+        snp_ratio = snp_counts / snp_total
+        parsed_data[lineage_name] = (snp_counts, snp_total, snp_ratio)
+    return parsed_data
+
+def get_highest_ratio(lineage_dict):
+    if len(lineage_dict) == 1:
+        return list(lineage_dict.keys())
+    elif len(lineage_dict) == 0:
+        return []
+    else:
+        # get the highest ratio
+        max_ratio = max([lineage_dict[lineage][2] for lineage in lineage_dict.keys()])
+        # get the lineage(s) with the highest ratio
+        max_lineages = [lineage for lineage in lineage_dict.keys() if lineage_dict[lineage][2] == max_ratio]
+        return max_lineages
+
+def decide_type(lineage_dict, sublineages):
+    output = []
+    max_lineages = get_highest_ratio(lineage_dict)
+    for lineage in max_lineages:
+        output.append(f"{lineage}({lineage_dict[lineage][0]}/{lineage_dict[lineage][1]})")
+        if lineage == "lineage4":
+            # find the next highest after lineage4
+            lineage_dict_copy = lineage_dict.copy()
+            lineage_dict_copy.pop("lineage4")
+            max_lineages_without_lineage4 = get_highest_ratio(lineage_dict_copy)
+            for sublineage in max_lineages_without_lineage4:
+                if sublineage in sublineages:
+                    output.append(f"{sublineage}({lineage_dict[sublineage][0]}/{lineage_dict[sublineage][1]})")
+    return ",".join(sorted(output))
 
 def parse_value(value):
+    """
+    Parse a column from fast-lineage-caller
+
+    Results have a format: typeA(a/b)[,typeB(x/y)]
+
+    Where:
+    - typeA and typeB are the identified lineage
+    - a and x are the number of identified SNPs for lineages typeA and typeB, resp.
+    - b and y are the number of lineage-specific SNPs in the schemes of typeA and typeB, resp.
+
+    The ancestral lineage4, to which the reference genome belongs, is identified by conserved positions.
+    If another type is confidently identified in addition to lineage4, this means the other type is preferred.
+    Only if lineage4 is the sole confidently identified type, it should be outputted
+    """
     if not isinstance(value, str):
-        outcome = value
+        top_hit = value
     elif value == "NA":
-        outcome = "NA"
-    elif len(value.split(",")) == 1:
-        # remove string matching pattern "([0-9]+/[0-9]+)" from value
-        outcome = re.sub(r"\([0-9]+/[0-9]+\)", "", value)
+        top_hit = "NA"
     else:
-        # make a list of identified types
-        list_of_types = value.split(",")
-        
-        max_ratio = -1
-        list_types_with_max_ratio = []
-
-        for item in list_of_types:
-            # get type name by removing count matching pattern "([0-9]+/[0-9]+)"
-            type_name = re.sub(r"\([0-9]+/[0-9]+\)", "", item)
-            # get count matching pattern "([0-9]+/[0-9]+)"
-            count_str = re.search(r"\([0-9]+/[0-9]+\)", item).group()
-            # get first and second number from count_str,
-            # indicating identified nr of SNPs and total nr of SNPs for that type
-            counts = count_str.strip("()").split("/")
-            ratio_type = int(counts[0]) / int(counts[1])
-            if ratio_type > max_ratio:
-                max_ratio = ratio_type
-                list_types_with_max_ratio = [type_name]
-            elif ratio_type == max_ratio:
-                list_types_with_max_ratio.append(type_name)
-
-        # get type with highest ratio
-        outcome = ",".join(list_types_with_max_ratio)
-
-    return outcome
+        parsed_lineages = parse_str_to_dict(value)
+        top_hit = decide_type(parsed_lineages, lineage4_sublineages)
+    return top_hit
 
 def parse_counts(df_input):
     df = df_input.copy()
     df.columns = [f"{col}_counts" if col != "Isolate" else col for col in df.columns]
+    list_warnings = []
     for col in df.columns[1:]:
         # remove _counts from column name
         col_name = col.replace("_counts", "")
         # get string value from first row, column matching col
-        df[col_name] = parse_value(df[col].iloc[0])
+        best_type = parse_value(df[col].iloc[0])
+        df[col_name] = best_type
+
     return df
 
 

@@ -1,6 +1,6 @@
 rule mtb_lineage_id:
     input:
-        vcf=OUT + "/mtb_typing/prepared_files/{sample}.vcf",
+        vcf=OUT + "/mtb_typing/prepared_files/lineage_typing_vcf/{sample}.vcf",
     output:
         tsv=temp(OUT + "/mtb_typing/lineage_call_standard/{sample}.tsv"),
     conda:

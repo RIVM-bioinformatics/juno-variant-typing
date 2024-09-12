@@ -5,7 +5,18 @@ import pandas as pd
 import re
 
 # define lineage4 sublineages from PMID 30789126
-lineage4_sublineages = ["ghana", "xtype", "haarlem", "ural", "tur", "lam", "stype", "uganda", "cameroon"]
+lineage4_sublineages = [
+    "ghana",
+    "xtype",
+    "haarlem",
+    "ural",
+    "tur",
+    "lam",
+    "stype",
+    "uganda",
+    "cameroon",
+]
+
 
 def parse_str_to_dict(lineage_str):
     lineages = lineage_str.split(",")
@@ -21,6 +32,7 @@ def parse_str_to_dict(lineage_str):
         parsed_data[lineage_name] = (snp_counts, snp_total, snp_ratio)
     return parsed_data
 
+
 def get_highest_ratio(lineage_dict):
     if len(lineage_dict) == 1:
         return list(lineage_dict.keys())
@@ -30,14 +42,21 @@ def get_highest_ratio(lineage_dict):
         # get the highest ratio
         max_ratio = max([lineage_dict[lineage][2] for lineage in lineage_dict.keys()])
         # get the lineage(s) with the highest ratio
-        max_lineages = [lineage for lineage in lineage_dict.keys() if lineage_dict[lineage][2] == max_ratio]
+        max_lineages = [
+            lineage
+            for lineage in lineage_dict.keys()
+            if lineage_dict[lineage][2] == max_ratio
+        ]
         return max_lineages
+
 
 def decide_type(lineage_dict, sublineages):
     output = []
     max_lineages = get_highest_ratio(lineage_dict)
     for lineage in max_lineages:
-        output.append(f"{lineage}({lineage_dict[lineage][0]}/{lineage_dict[lineage][1]})")
+        output.append(
+            f"{lineage}({lineage_dict[lineage][0]}/{lineage_dict[lineage][1]})"
+        )
         if lineage == "lineage4":
             # find the next highest after lineage4
             lineage_dict_copy = lineage_dict.copy()
@@ -45,8 +64,11 @@ def decide_type(lineage_dict, sublineages):
             max_lineages_without_lineage4 = get_highest_ratio(lineage_dict_copy)
             for sublineage in max_lineages_without_lineage4:
                 if sublineage in sublineages:
-                    output.append(f"{sublineage}({lineage_dict[sublineage][0]}/{lineage_dict[sublineage][1]})")
+                    output.append(
+                        f"{sublineage}({lineage_dict[sublineage][0]}/{lineage_dict[sublineage][1]})"
+                    )
     return ",".join(sorted(output))
+
 
 def parse_value(value):
     """
@@ -72,6 +94,7 @@ def parse_value(value):
         top_hit = decide_type(parsed_lineages, lineage4_sublineages)
     return top_hit
 
+
 def parse_counts(df_input):
     df = df_input.copy()
     df.columns = [f"{col}_counts" if col != "Isolate" else col for col in df.columns]
@@ -93,7 +116,6 @@ def main(args):
     df_standard_parsed = parse_counts(df_standard)
 
     df_custom = pd.read_csv(args.custom, sep="\t")
-
 
     # merge all dataframes horizontally on Isolate
     merged_df = pd.merge(df_standard_parsed, df_custom, on="Isolate")

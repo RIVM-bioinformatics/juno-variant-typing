@@ -23,6 +23,7 @@ fast-lineage-caller \
 2>&1>{log}
         """
 
+
 rule mtb_lineage_id_custom:
     input:
         vcf=OUT + "/mtb_typing/prepared_files/{sample}.vcf",
@@ -40,7 +41,7 @@ rule mtb_lineage_id_custom:
     resources:
         mem_gb=config["mem_gb"]["fast-lineage-caller"],
     params:
-        scheme = "files/mtb/snpCL_scheme.tsv",
+        scheme="files/mtb/snpCL_scheme.tsv",
     shell:
         """
 fast-lineage-caller \
@@ -50,13 +51,14 @@ fast-lineage-caller \
 2>&1>{log}
         """
 
+
 rule combine_lineage_typing:
     input:
         lineage_standard=OUT + "/mtb_typing/lineage_call_standard/{sample}.tsv",
         lineage_custom=OUT + "/mtb_typing/lineage_call_custom/{sample}.tsv",
     output:
         tsv=OUT + "/mtb_typing/lineage_call/{sample}.tsv",
-    conda:  
+    conda:
         "../envs/scripts.yaml"
     log:
         OUT + "/log/combine_lineage_typing/{sample}.log",

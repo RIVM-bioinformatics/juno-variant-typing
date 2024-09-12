@@ -45,13 +45,14 @@ rule copy_sample_vcf:
 cp {input.vcf} {output.vcf} 2>&1>{log}
         """
 
+
 # This rule adds VCF entries needed for lineage typing to the normal VCF
 # The VCF entries are only added if missing and contain only reference calls (0/0 Genotype)
 # fast-lineage-caller only considers variants in the VCF so these need to be added explicitly
 rule prepare_lineage_typing_vcf:
     input:
         lineage4_vcf="files/mtb/lineage4_lipworth.vcf",
-        vcf=OUT + "/mtb_typing/prepared_files/{sample}.vcf"
+        vcf=OUT + "/mtb_typing/prepared_files/{sample}.vcf",
     output:
         vcf=temp(OUT + "/mtb_typing/prepared_files/lineage_typing_vcf/{sample}.vcf"),
     conda:
@@ -59,10 +60,10 @@ rule prepare_lineage_typing_vcf:
     container:
         "docker://staphb/bedtools:2.30.0"
     log:
-        OUT + "/log/prepare_lineage_typing_vcf/{sample}.log"
+        OUT + "/log/prepare_lineage_typing_vcf/{sample}.log",
     threads: config["threads"]["bedtools"]
     resources:
-        mem_gb=config["mem_gb"]["bedtools"]
+        mem_gb=config["mem_gb"]["bedtools"],
     shell:
         """
 cat {input.vcf} <(bedtools intersect -a {input.lineage4_vcf} -b {input.vcf} -v) | \

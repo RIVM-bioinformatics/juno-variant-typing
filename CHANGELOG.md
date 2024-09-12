@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.3.0](https://github.com/RIVM-bioinformatics/juno-variant-typing/compare/v0.2.1...v0.3.0) (2024-09-12)
+
+
+### Features
+
+* add detection of snpCLs ([2d075d7](https://github.com/RIVM-bioinformatics/juno-variant-typing/commit/2d075d7a6bc8897425f3d28fc8047ccbff8e65bb))
+
+
+### Bug Fixes
+
+* add counts to lineage scoring ([d28718d](https://github.com/RIVM-bioinformatics/juno-variant-typing/commit/d28718d23fbdc2eb619eccd15f5cb7f771b160f0))
+* dont use contig number in consensus fasta header ([514d806](https://github.com/RIVM-bioinformatics/juno-variant-typing/commit/514d8067666598cc9fce071f80e3cedc9b51197e))
+* fix run_pipeline.sh ([e6dbab7](https://github.com/RIVM-bioinformatics/juno-variant-typing/commit/e6dbab75181cda89e780eb0428833526683a0755))
+* fix run_pipeline.sh ([523a157](https://github.com/RIVM-bioinformatics/juno-variant-typing/commit/523a1571d99f15edcdd688241d6a8565414c7508))
+* generalize binding paths when using container ([5d5991a](https://github.com/RIVM-bioinformatics/juno-variant-typing/commit/5d5991adaf45cc7a19a9bf9010170fae928b801f))
+* introduce vcf entries with ref call if needed ([56ff964](https://github.com/RIVM-bioinformatics/juno-variant-typing/commit/56ff964ce005f21190177a2e9b30a520a3af44e6))
+
+
+### Dependencies
+
+* update juno-lib ([fbd67e6](https://github.com/RIVM-bioinformatics/juno-variant-typing/commit/fbd67e63bf67a7ae8f010c29a3df97626b43ba8f))
+
 ## [0.2.1](https://github.com/RIVM-bioinformatics/juno-variant-typing/compare/v0.2.0...v0.2.1) (2024-07-25)
 
 

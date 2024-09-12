@@ -1,8 +1,8 @@
 rule mtb_lineage_id:
     input:
-        vcf=OUT + "/mtb_typing/prepared_files/{sample}.vcf",
+        vcf=OUT + "/mtb_typing/prepared_files/lineage_typing_vcf/{sample}.vcf",
     output:
-        tsv=OUT + "/mtb_typing/lineage_call/{sample}.tsv",
+        tsv=temp(OUT + "/mtb_typing/lineage_call_standard/{sample}.tsv"),
     conda:
         "../envs/fast_lineage_caller.yaml"
     container:
@@ -17,9 +17,59 @@ rule mtb_lineage_id:
     shell:
         """
 fast-lineage-caller \
+--count \
 --out {output.tsv} \
 {input.vcf} \
 2>&1>{log}
+        """
+
+
+rule mtb_lineage_id_custom:
+    input:
+        vcf=OUT + "/mtb_typing/prepared_files/{sample}.vcf",
+    output:
+        tsv=temp(OUT + "/mtb_typing/lineage_call_custom/{sample}.tsv"),
+    conda:
+        "../envs/fast_lineage_caller.yaml"
+    container:
+        "docker://ghcr.io/boasvdp/fast_lineage_caller:1.0.0"
+    log:
+        OUT + "/log/mtb_lineage_id/{sample}.log",
+    message:
+        "Typing Mtb lineage for {wildcards.sample}"
+    threads: config["threads"]["fast-lineage-caller"]
+    resources:
+        mem_gb=config["mem_gb"]["fast-lineage-caller"],
+    params:
+        scheme="files/mtb/snpCL_scheme.tsv",
+    shell:
+        """
+fast-lineage-caller \
+--out {output.tsv} \
+--scheme {params.scheme} \
+{input.vcf} \
+2>&1>{log}
+        """
+
+
+rule combine_lineage_typing:
+    input:
+        lineage_standard=OUT + "/mtb_typing/lineage_call_standard/{sample}.tsv",
+        lineage_custom=OUT + "/mtb_typing/lineage_call_custom/{sample}.tsv",
+    output:
+        tsv=OUT + "/mtb_typing/lineage_call/{sample}.tsv",
+    conda:
+        "../envs/scripts.yaml"
+    log:
+        OUT + "/log/combine_lineage_typing/{sample}.log",
+    message:
+        "Combining lineage calls for {wildcards.sample}"
+    shell:
+        """
+python workflow/scripts/combine_lineage_calls.py \
+--standard {input.lineage_standard} \
+--custom {input.lineage_custom} \
+--output {output.tsv} 2>&1>{log}
         """
 
 

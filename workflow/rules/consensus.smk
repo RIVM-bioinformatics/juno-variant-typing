@@ -231,7 +231,7 @@ rule replace_fasta_header:
         """
 seqkit replace \
 -p ^ \
--r '{wildcards.sample}_contig{{nr}} ' \
+-r '{wildcards.sample} ' \
 {input.fasta} \
 1> {output.fasta} \
 2>{log}

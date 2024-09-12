@@ -138,11 +138,27 @@ class JunoVariantTyping(Pipeline):
         self.set_presets()
 
         if self.snakemake_args["use_singularity"]:
+
+            paths_from_presets = []
+
+            for key, value in self.species_presets.items():
+                try:
+                    path = Path(value)
+                except TypeError:
+                    continue
+                if path.exists() & path.is_absolute():
+                    paths_from_presets.append(path.parent.resolve())
+
+            unique_bind_paths = self.get_unique_bind_paths(
+                paths_from_presets, iterations=3
+            )
+
             self.snakemake_args["singularity_args"] = " ".join(
                 [
                     self.snakemake_args["singularity_args"],
                     f"--bind {self.db_dir}:{self.db_dir}",
-                ]  # paths that singularity should be able to read from can be bound by adding to the above list
+                ]
+                + [f"--bind {str(path)}:{str(path)}" for path in unique_bind_paths]
             )
 
         # # Extra class methods for this pipeline can be invoked here
@@ -188,17 +204,50 @@ class JunoVariantTyping(Pipeline):
                 )
 
     def set_presets(self) -> None:
+        # if no custom presets were provided, look in default location
         if self.presets_path is None:
             self.presets_path = Path(__file__).parent.joinpath("config/presets.yaml")
 
+        # read all presets into dict
         with open(self.presets_path) as f:
             presets_dict = yaml.safe_load(f)
 
+        # update sample dict with presets
         for sample in self.sample_dict:
             species_name = self.sample_dict[sample]["species"]
             if species_name in presets_dict.keys():
-                for key, value in presets_dict[species_name].items():
+                # store species-specific presets in self.species_presets for potential reuse
+                self.species_presets = presets_dict[species_name]
+                for key, value in self.species_presets.items():
                     self.sample_dict[sample][key] = value
+
+    def remove_from_list(self, lst, elements):
+        for element in elements:
+            if element in lst:
+                lst.remove(element)
+        return lst
+
+    def simplify_bind_paths(self, paths):
+        unique_bind_paths = paths.copy()
+        for path1 in paths:
+            for path2 in paths:
+                if path1 == path2:
+                    continue
+                elif path1 == path2.parent:
+                    self.remove_from_list(unique_bind_paths, [path2])
+                elif path1.parent == path2.parent:
+                    self.remove_from_list(unique_bind_paths, [path1, path2])
+                    unique_bind_paths.append(path1.parent)
+                else:
+                    continue
+
+        return unique_bind_paths
+
+    def get_unique_bind_paths(self, paths, iterations=3):
+        unique_bind_paths = paths.copy()
+        for _ in range(iterations):
+            unique_bind_paths = self.simplify_bind_paths(unique_bind_paths)
+        return unique_bind_paths
 
 
 if __name__ == "__main__":

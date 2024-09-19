@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/RIVM-bioinformatics/juno-variant-typing/compare/v0.3.0...v0.3.1) (2024-09-19)
+
+
+### Bug Fixes
+
+* propagate user metadata ([eabb78a](https://github.com/RIVM-bioinformatics/juno-variant-typing/commit/eabb78a08702b56a578c896b0a531e4d4ff97214))
+
 ## [0.3.0](https://github.com/RIVM-bioinformatics/juno-variant-typing/compare/v0.2.1...v0.3.0) (2024-09-12)
 
 

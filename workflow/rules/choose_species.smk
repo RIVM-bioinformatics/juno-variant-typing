@@ -3,6 +3,7 @@ def choose_species(wildcards):
         return [
             OUT + "/mtb_typing/lineage_call/{sample}.tsv",
             OUT + "/mtb_typing/contamination_check/coll_positions/{sample}.tsv",
+            OUT + "/mtb_typing/ab_positions/{sample}.tsv",
             OUT + "/mtb_typing/contamination_check/rrs_rrl_contamination/{sample}.tsv",
             OUT + "/mtb_typing/seq_exp_json/{sample}.json",
             OUT + "/mtb_typing/consensus/{sample}.fasta",

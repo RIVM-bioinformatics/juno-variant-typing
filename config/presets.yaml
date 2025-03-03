@@ -6,6 +6,7 @@ mycobacterium_tuberculosis:
   resistance_variants_columns: ref_reslist,alt_reslist,gene,drug,RIVM,TP,FP,confidence,variant_common_name
   resistance_variants_ab_column: drug
   resistance_deletions_bed: files/mtb/resistance_regions_tbdb.bed
+  ab_positions_bed: files/mtb/AB_positions.bed
   consensus_proximity_threshold: 12
   consensus_AF_threshold: 0.8
   consensus_tlod_threshold: 10
@@ -17,6 +18,7 @@ other:
   resistance_variants_csv: null
   resistance_variants_columns: null
   resistance_variants_ab_column: null
+  ab_positions_bed: null
   consensus_proximity_threshold: null
   consensus_AF_threshold: null
   consensus_tlod_threshold: null

@@ -104,6 +104,36 @@ gatk CollectAllelicCounts \
 2>&1>{log}
         """
 
+rule mtb_ab_positions:
+    input:
+        bam=OUT + "/mtb_typing/prepared_files/{sample}.bam",
+        bai=OUT + "/mtb_typing/prepared_files/{sample}.bam.bai",
+        reference=OUT + "/mtb_typing/prepared_files/{sample}_ref.fasta",
+        dummy=OUT + "/mtb_typing/prepared_files/{sample}_ref.dict",
+        fai=OUT + "/mtb_typing/prepared_files/{sample}_ref.fasta.fai",
+        bed=lambda wildcards: SAMPLES[wildcards.sample]["ab_positions_bed"],
+    output:
+        tsv=OUT + "/mtb_typing/ab_positions/{sample}.tsv",
+    conda:
+        "../envs/gatk_picard.yaml"
+    container:
+        "docker://broadinstitute/gatk:4.3.0.0"
+    log:
+        OUT + "/log/mtb_typing/ab_positions/{sample}.log",
+    message:
+        "Assessing ab positions for {wildcards.sample}"
+    threads: config["threads"]["gatk"]
+    resources:
+        mem_gb=config["mem_gb"]["gatk"],
+    shell:
+        """
+gatk CollectAllelicCounts \
+-I {input.bam} \
+-R {input.reference} \
+-L {input.bed} \
+-O {output.tsv} \
+2>&1>{log}
+        """
 
 rule mtb_rrs_rrl_contamination:
     input:

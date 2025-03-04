@@ -17,3 +17,4 @@ mem_gb:
     gatk: 4
     samtools: 4
     snpeff: 8
+    check_empty: 4

@@ -316,38 +316,19 @@ python workflow/scripts/create_tb_json.py \
 --output {output.json} 2>&1>{log}
         """
 
-rule check_empty_vcf:
-    input:
-        vcf=OUT + "/mtb_typing/prepared_files/deletions/{sample}.vcf",
-    output:
-        check_empty=OUT + "/mtb_typing/empty_files/{sample}.txt",
-    log:
-        OUT + "/log/check_empty_vcf/{sample}.log",
-    resources:
-        mem_gb=config["mem_gb"]["check_empty"],
-    shell:
-        """
-if [ ! -s {input.vcf} ]
-then
-    echo "empty" > {output.check_empty}
-else
-    echo "not empty" > {output.check_empty}
-fi
-        """
 
 checkpoint flag_empty_vcf:
     input:
-        check_empty=OUT + "/mtb_typing/empty_files/{sample}.txt",
+        vcf=OUT + "/mtb_typing/prepared_files/deletions/{sample}.vcf",
     output:
         flag=OUT + "/mtb_typing/flagged_empty/{sample}.txt",
     resources:
         mem_gb=config["mem_gb"]["check_empty"],
     run:
-        with open(input.check_empty) as f:
-            if f.read().strip() == "empty":
-                flag = "True"
-            else:
-                flag = "False"
+        if not os.path.getsize(input.vcf):
+            flag = "True"
+        else:
+            flag = "False"
         with open(output.flag, "w") as f:
             f.write(flag)
 
@@ -374,7 +355,7 @@ rule mtb_deletions_to_table:
 if [ $(cat {input.flag}) == "True" ]
 then
     echo -e "CHROM\tPOS\tEND" > {output}
-    echo "Created empty VCF" > {log}
+    echo "Created empty table" > {log}
 else
     gatk VariantsToTable \
     -V {input.vcf} \

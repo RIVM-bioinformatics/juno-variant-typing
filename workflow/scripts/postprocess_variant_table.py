@@ -113,7 +113,7 @@ def rename_columns(df, rename_dict):
 
 def main(args):
     df = pd.read_csv(args.input, sep="\t")
-    df_ref = pd.read_csv(args.reference_data, sep=";")
+    df_ref = pd.read_csv(args.reference_data, sep=",")
     # Keep only the columns that are needed
     all_keep_cols = args.merge_cols.split(",") + args.keep_cols.split(",")
     df_merged = pd.merge(

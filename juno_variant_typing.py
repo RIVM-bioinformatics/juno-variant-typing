@@ -93,7 +93,7 @@ class JunoVariantTyping(Pipeline):
             metavar="SPECIES",
             choices=self.species_options,
             help="Species name (any species in the metadata file will overwrite"
-            " this argument). Choose from: {self.species_options}",
+            f" this argument). Choose from: {self.species_options}",
         )
         self.add_argument(
             "-d",

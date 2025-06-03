@@ -135,6 +135,38 @@ gatk CollectAllelicCounts \
 2>&1>{log}
         """
 
+rule mtb_ab_positions:
+    input:
+        bam=OUT + "/mtb_typing/prepared_files/{sample}.bam",
+        bai=OUT + "/mtb_typing/prepared_files/{sample}.bam.bai",
+        reference=OUT + "/mtb_typing/prepared_files/{sample}_ref.fasta",
+        dummy=OUT + "/mtb_typing/prepared_files/{sample}_ref.dict",
+        fai=OUT + "/mtb_typing/prepared_files/{sample}_ref.fasta.fai",
+        bed=lambda wildcards: SAMPLES[wildcards.sample]["ab_positions_bed"],
+    output:
+        tsv=OUT + "/mtb_typing/ab_positions/{sample}.tsv",
+    conda:
+        "../envs/gatk_picard.yaml"
+    container:
+        "docker://broadinstitute/gatk:4.3.0.0"
+    log:
+        OUT + "/log/mtb_typing/ab_positions/{sample}.log",
+    message:
+        "Assessing ab positions for {wildcards.sample}"
+    threads: config["threads"]["gatk"]
+    resources:
+        mem_gb=config["mem_gb"]["gatk"],
+    shell:
+        """
+gatk CollectAllelicCounts \
+-I {input.bam} \
+-R {input.reference} \
+-L {input.bed} \
+-O {output.tsv} \
+2>&1>{log}
+        """
+
+
 rule mtb_rrs_rrl_contamination:
     input:
         vcf=OUT + "/mtb_typing/prepared_files/{sample}.vcf",
@@ -336,7 +368,9 @@ checkpoint flag_empty_vcf:
 rule mtb_deletions_to_table:
     input:
         vcf=OUT + "/mtb_typing/prepared_files/deletions/{sample}.vcf",
-        flag=lambda wildcards: checkpoints.flag_empty_vcf.get(sample=wildcards.sample).output.flag,
+        flag=lambda wildcards: checkpoints.flag_empty_vcf.get(
+            sample=wildcards.sample
+        ).output.flag,
     output:
         OUT + "/mtb_typing/annotated_deletions/raw/{sample}.tsv",
     conda:
@@ -373,7 +407,9 @@ rule mtb_annotate_deletions:
         resistance_deletions_bed=lambda wildcards: SAMPLES[wildcards.sample][
             "resistance_deletions_bed"
         ],
-        flag=lambda wildcards: checkpoints.flag_empty_vcf.get(sample=wildcards.sample).output.flag,
+        flag=lambda wildcards: checkpoints.flag_empty_vcf.get(
+            sample=wildcards.sample
+        ).output.flag,
     output:
         tsv=OUT + "/mtb_typing/annotated_deletions/{sample}.tsv",
     log:
@@ -397,6 +433,59 @@ else
     2>&1>{log}
 fi
         """
+
+# rule mtb_deletions_to_table:
+#     input:
+#         vcf=OUT + "/mtb_typing/prepared_files/deletions/{sample}.vcf",
+#     output:
+#         OUT + "/mtb_typing/annotated_deletions/raw/{sample}.tsv",
+#     conda:
+#         "../envs/gatk_picard.yaml"
+#     container:
+#         "docker://broadinstitute/gatk:4.3.0.0"
+#     log:
+#         OUT + "/log/mtb_deletions_to_table/{sample}.log",
+#     message:
+#         "Convert deletion vcf to table for {wildcards.sample}"
+#     threads: config["threads"]["gatk"]
+#     resources:
+#         mem_gb=config["mem_gb"]["gatk"],
+#     shell:
+#         """
+# gatk VariantsToTable \
+# -V {input.vcf} \
+# --show-filtered \
+# -F CHROM \
+# -F POS \
+# -F END \
+# -O {output} 2>&1>{log}
+#         """
+
+
+# rule mtb_annotate_deletions:
+#     input:
+#         bed=OUT + "/mtb_typing/annotated_deletions/raw/{sample}.tsv",
+#         resistance_deletions_bed=lambda wildcards: SAMPLES[wildcards.sample][
+#             "resistance_deletions_bed"
+#         ],
+#     output:
+#         tsv=OUT + "/mtb_typing/annotated_deletions/{sample}.tsv",
+#     log:
+#         OUT + "/log/mtb_annotate_deletions/{sample}.log",
+#     message:
+#         "Annotating deletions with AMR for {wildcards.sample}"
+#     threads: config["threads"]["other"]
+#     resources:
+#         mem_gb=config["mem_gb"]["other"],
+#     shell:
+#         """
+# python workflow/scripts/postprocess_deletion_table.py \
+# --input {input.bed} \
+# --bed {input.resistance_deletions_bed} \
+# --output {output} \
+# 2>&1>{log}
+#         """
+
 
 # rule mtb_deletions_to_table:
 #     input:

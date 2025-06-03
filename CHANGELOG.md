@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.5.0](https://github.com/RIVM-bioinformatics/juno-variant-typing/compare/v0.4.0...v0.5.0) (2025-06-03)
+
+
+### Features
+
+* added additional coll position, added AB positions table ([6624553](https://github.com/RIVM-bioinformatics/juno-variant-typing/commit/6624553b79fb6250f44935fc216582e1eba4f6a9))
+
+
+### Bug Fixes
+
+* checkpoints to flag empty deletions vcf ([36c5d32](https://github.com/RIVM-bioinformatics/juno-variant-typing/commit/36c5d32fe133aeffd409a4eacaa7856c23867882))
+* consolidated checkpoint for empty vcf files ([dfb0503](https://github.com/RIVM-bioinformatics/juno-variant-typing/commit/dfb050379b544244c5815298afb14f03b7d7c006))
+
+
+### Documentation
+
+* fix CLI help message ([02a1a68](https://github.com/RIVM-bioinformatics/juno-variant-typing/commit/02a1a68d351db57c0099001befac3748f9bc96cf))
+
 ## [0.4.0](https://github.com/RIVM-bioinformatics/juno-variant-typing/compare/v0.3.1...v0.4.0) (2025-04-23)
 
 

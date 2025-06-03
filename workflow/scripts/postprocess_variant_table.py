@@ -100,13 +100,43 @@ def rename_columns(df, rename_dict):
         Renamed dataframe
     """
     df = df.rename(columns=rename_dict)
-    # Check if any column ends with .AF, and if so rename the whole column name to AF
-    # throw error if there are multiple columns ending with .AF
-    af_cols = [col for col in df.columns if col.endswith(".AF")]
-    if len(af_cols) > 1:
-        raise ValueError(f"Multiple columns ending with .AF: {af_cols}")
-    elif len(af_cols) == 1:
-        df = df.rename(columns={af_cols[0]: "AF"})
+    # Check if any column ends with .AD, and if so rename the whole column name to AD
+    # throw error if there are multiple columns ending with .AD
+    ad_cols = [col for col in df.columns if col.endswith(".AD")]
+    if len(ad_cols) > 1:
+        raise ValueError(f"Multiple columns ending with .AD: {ad_cols}")
+    elif len(ad_cols) == 1:
+        df = df.rename(columns={ad_cols[0]: "AD"})
+
+    return df
+
+
+def calculate_allele_frequency(df):
+    """
+    Calculate allele frequency column from allele depths column
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        Input dataframe
+
+    Returns
+    -------
+    pandas.DataFrame
+        dataframe with calculated AF column
+    """
+    if not (df["AD"].str.count(",") == 1).all():
+        raise ValueError(
+            "Error: One or more entries in allele depths column (AD) don't contain the expected number of fields (2)."
+        )
+
+    # split into ref and alt counts
+    df[["ref_count", "alt_count"]] = df["AD"].str.split(",", expand=True).astype(int)
+
+    # do AF calculation ourselves
+    df["AF"] = df["alt_count"] / (df["ref_count"] + df["alt_count"])
+    df["AF"] = df["AF"].round(3)
+    df.drop(columns=["ref_count", "alt_count", "AD"], inplace=True)
 
     return df
 
@@ -121,7 +151,10 @@ def main(args):
     )
     df_merged_eff_parsed = parse_eff_field(df_merged)
     df_merged_eff_parsed_renamed = rename_columns(df_merged_eff_parsed, rename_dict)
-    df_final = df_merged_eff_parsed_renamed.fillna("-").replace("", "-")
+    df_merged_eff_parsed_renamed_withAF = calculate_allele_frequency(
+        df_merged_eff_parsed_renamed
+    )
+    df_final = df_merged_eff_parsed_renamed_withAF.fillna("-").replace("", "-")
     df_final.to_csv(args.output, sep="\t", index=False)
 
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.1](https://github.com/RIVM-bioinformatics/juno-variant-typing/compare/v0.5.0...v0.5.1) (2025-06-12)
+
+
+### Bug Fixes
+
+* add setuptools v79 dependency ([550a602](https://github.com/RIVM-bioinformatics/juno-variant-typing/commit/550a6027c34680b41be0d5c6df43cf08bdf99c70))
+
 ## [0.5.0](https://github.com/RIVM-bioinformatics/juno-variant-typing/compare/v0.4.0...v0.5.0) (2025-06-03)
 
 

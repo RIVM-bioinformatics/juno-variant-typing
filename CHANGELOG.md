@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.2](https://github.com/RIVM-bioinformatics/juno-variant-typing/compare/v0.5.1...v0.5.2) (2025-06-17)
+
+
+### Bug Fixes
+
+* error with duplicated rule ([26b3ab9](https://github.com/RIVM-bioinformatics/juno-variant-typing/commit/26b3ab9c11ae23386b5db5e2dc443ee195804310))
+
 ## [0.5.1](https://github.com/RIVM-bioinformatics/juno-variant-typing/compare/v0.5.0...v0.5.1) (2025-06-12)
 
 

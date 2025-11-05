@@ -104,6 +104,7 @@ gatk CollectAllelicCounts \
 2>&1>{log}
         """
 
+
 rule mtb_ab_positions:
     input:
         bam=OUT + "/mtb_typing/prepared_files/{sample}.bam",
@@ -134,6 +135,7 @@ gatk CollectAllelicCounts \
 -O {output.tsv} \
 2>&1>{log}
         """
+
 
 rule mtb_rrs_rrl_contamination:
     input:
@@ -280,6 +282,7 @@ python workflow/scripts/postprocess_variant_table.py \
 rule mtb_filter_res_table_positions:
     input:
         tsv=OUT + "/mtb_typing/annotated_variants/{sample}.tsv",
+        indel_gene_list=lambda wildcards: SAMPLES[wildcards.sample]["indel_gene_list"],
     output:
         tsv=OUT + "/mtb_typing/annotated_resistance_filtered/{sample}.tsv",
     params:
@@ -291,8 +294,9 @@ rule mtb_filter_res_table_positions:
     shell:
         """
 python workflow/scripts/filter_res_table.py \
---input {input} \
+--input {input.tsv} \
 --ab-column {params.ab_column} \
+--indel-gene-list {input.indel_gene_list} \
 --output {output} 2>&1>{log}
         """
 
@@ -369,6 +373,7 @@ else
 fi
         """
 
+
 rule mtb_annotate_deletions:
     input:
         bed=OUT + "/mtb_typing/annotated_deletions/raw/{sample}.tsv",
@@ -401,6 +406,7 @@ else
     2>&1>{log}
 fi
         """
+
 
 # rule mtb_deletions_to_table:
 #     input:

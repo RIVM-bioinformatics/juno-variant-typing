@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/RIVM-bioinformatics/juno-variant-typing/compare/v0.5.2...v0.6.0) (2025-11-05)
+
+
+### Features
+
+* additional ab positions ([0126c58](https://github.com/RIVM-bioinformatics/juno-variant-typing/commit/0126c589563c03501964455a898bd304873bc9d2))
+
 ## [0.5.2](https://github.com/RIVM-bioinformatics/juno-variant-typing/compare/v0.5.1...v0.5.2) (2025-06-17)
 
 

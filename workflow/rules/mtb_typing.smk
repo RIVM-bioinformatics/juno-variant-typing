@@ -253,6 +253,7 @@ rule mtb_annotate_ab_positions:
     input:
         tsv=OUT + "/mtb_typing/annotated_variants/raw/{sample}.tsv",
         reslist=lambda wildcards: SAMPLES[wildcards.sample]["resistance_variants_csv"],
+        indel_gene_list=lambda wildcards: SAMPLES[wildcards.sample]["indel_gene_list"],
     output:
         tsv=OUT + "/mtb_typing/annotated_variants/{sample}.tsv",
     params:
@@ -274,6 +275,7 @@ python workflow/scripts/postprocess_variant_table.py \
 --reference_data {input.reslist} \
 --merge_cols {params.merge_cols} \
 --keep_cols {params.keep_cols} \
+--indel-gene-list {input.indel_gene_list} \
 --output {output} \
 2>&1>{log}
         """

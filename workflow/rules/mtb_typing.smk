@@ -253,7 +253,6 @@ rule mtb_annotate_ab_positions:
     input:
         tsv=OUT + "/mtb_typing/annotated_variants/raw/{sample}.tsv",
         reslist=lambda wildcards: SAMPLES[wildcards.sample]["resistance_variants_csv"],
-        indel_gene_list=lambda wildcards: SAMPLES[wildcards.sample]["indel_gene_list"],
     output:
         tsv=OUT + "/mtb_typing/annotated_variants/{sample}.tsv",
     params:
@@ -275,7 +274,6 @@ python workflow/scripts/postprocess_variant_table.py \
 --reference_data {input.reslist} \
 --merge_cols {params.merge_cols} \
 --keep_cols {params.keep_cols} \
---indel-gene-list {input.indel_gene_list} \
 --output {output} \
 2>&1>{log}
         """
@@ -284,7 +282,7 @@ python workflow/scripts/postprocess_variant_table.py \
 rule mtb_filter_res_table_positions:
     input:
         tsv=OUT + "/mtb_typing/annotated_variants/{sample}.tsv",
-        indel_gene_list=lambda wildcards: SAMPLES[wildcards.sample]["indel_gene_list"],
+
     output:
         tsv=OUT + "/mtb_typing/annotated_resistance_filtered/{sample}.tsv",
     params:
@@ -298,7 +296,6 @@ rule mtb_filter_res_table_positions:
 python workflow/scripts/filter_res_table.py \
 --input {input.tsv} \
 --ab-column {params.ab_column} \
---indel-gene-list {input.indel_gene_list} \
 --output {output} 2>&1>{log}
         """
 
@@ -409,6 +406,34 @@ else
 fi
         """
 
+rule mtb_annotate_indel_list_resistance_positions:
+    input:
+        tsv=OUT + "/mtb_typing/annotated_variants/raw/{sample}.tsv",
+        indel_gene_list=lambda wildcards: SAMPLES[wildcards.sample]["indel_gene_list"],
+    output:
+        tsv=OUT + "/mtb_typing/annotated_indels/{sample}.tsv",
+    params:
+        merge_cols="CHROM,POS",
+        keep_cols=lambda wildcards: SAMPLES[wildcards.sample][
+            "resistance_variants_columns"
+        ],
+    log:
+        OUT + "/log/mtb_annotate_indel_list_resistance_positions/{sample}.log",
+    message:
+        "Annotating indels with AMR for {wildcards.sample}"
+    threads: config["threads"]["other"]
+    resources:
+        mem_gb=config["mem_gb"]["other"],
+    shell:
+        """
+python workflow/scripts/postprocess_indel_table.py \
+--input {input.tsv} \
+--reference_data {input.indel_gene_list} \
+--merge_cols {params.merge_cols} \
+--keep_cols {params.keep_cols} \
+--output {output} \
+2>&1>{log}
+        """
 
 # rule mtb_deletions_to_table:
 #     input:

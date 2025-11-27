@@ -18,7 +18,6 @@ parser.add_argument(
     type=str,
 )
 parser.add_argument("--output", help="Output tsv file", type=Path)
-parser.add_argument("--indel-gene-list", help="Indel gene list tsv file", type=Path)
 args = parser.parse_args()
 
 rename_dict = {
@@ -111,30 +110,6 @@ def rename_columns(df, rename_dict):
 
     return df
 
-def annotate_indels_with_gene_list(df, df_indel_gene_list):
-    """
-    Annotate INDEL variants with gene and drug info from indel gene list.
-    """
-    annotated_rows = []
-    for _, row in df.iterrows():
-        if row.get("TYPE") == "INDEL":
-            matches = df_indel_gene_list[
-                (row["POS"] >= df_indel_gene_list["start"]) &
-                (row["POS"] <= df_indel_gene_list["end"])
-            ]
-            if not matches.empty:
-                for _, indel_row in matches.iterrows():
-                    row_copy = row.copy()
-                    row_copy["gene"] = indel_row["gene"]
-                    row_copy["drug"] = indel_row["drug"]
-                    row_copy["confidence"] = "INDEL gene list"
-                    annotated_rows.append(row_copy)
-            else:
-                annotated_rows.append(row)
-        else:
-            annotated_rows.append(row)
-    return pd.DataFrame(annotated_rows)
-
 
 def main(args):
     df = pd.read_csv(args.input, sep="\t")
@@ -147,11 +122,6 @@ def main(args):
     df_merged_eff_parsed = parse_eff_field(df_merged)
     df_merged_eff_parsed_renamed = rename_columns(df_merged_eff_parsed, rename_dict)
     df_final = df_merged_eff_parsed_renamed.fillna("-").replace("", "-")
-
-    #Annotate INDELs if indel gene list is provided
-    if args.indel_gene_list is not None:
-        df_indel_gene_list = pd.read_csv(args.indel_gene_list, sep="\t")
-        df_final = annotate_indels_with_gene_list(df_final, df_indel_gene_list)
     df_final.to_csv(args.output, sep="\t", index=False)
 
 

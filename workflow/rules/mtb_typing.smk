@@ -282,7 +282,6 @@ python workflow/scripts/postprocess_variant_table.py \
 rule mtb_filter_res_table_positions:
     input:
         tsv=OUT + "/mtb_typing/annotated_variants/{sample}.tsv",
-
     output:
         tsv=OUT + "/mtb_typing/annotated_resistance_filtered/{sample}.tsv",
     params:
@@ -406,6 +405,7 @@ else
 fi
         """
 
+
 rule mtb_annotate_indel_list_resistance_positions:
     input:
         tsv=OUT + "/mtb_typing/annotated_variants/raw/{sample}.tsv",
@@ -429,11 +429,10 @@ rule mtb_annotate_indel_list_resistance_positions:
 python workflow/scripts/postprocess_indel_table.py \
 --input {input.tsv} \
 --reference_data {input.indel_gene_list} \
---merge_cols {params.merge_cols} \
---keep_cols {params.keep_cols} \
 --output {output} \
 2>&1>{log}
         """
+
 
 # rule mtb_deletions_to_table:
 #     input:

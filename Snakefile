@@ -54,4 +54,5 @@ rule all:
             OUT + "/mtb_typing/annotated_resistance_filtered/{sample}.tsv",
             sample=SAMPLES,
         ),
+        expand(OUT + "/mtb_typing/annotated_indels/{sample}.tsv", sample=SAMPLES),
         OUT + "/version_audit/versions.txt",

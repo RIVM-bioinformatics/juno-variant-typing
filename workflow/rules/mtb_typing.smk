@@ -104,6 +104,7 @@ gatk CollectAllelicCounts \
 2>&1>{log}
         """
 
+
 rule mtb_ab_positions:
     input:
         bam=OUT + "/mtb_typing/prepared_files/{sample}.bam",
@@ -134,6 +135,7 @@ gatk CollectAllelicCounts \
 -O {output.tsv} \
 2>&1>{log}
         """
+
 
 rule mtb_rrs_rrl_contamination:
     input:
@@ -291,7 +293,7 @@ rule mtb_filter_res_table_positions:
     shell:
         """
 python workflow/scripts/filter_res_table.py \
---input {input} \
+--input {input.tsv} \
 --ab-column {params.ab_column} \
 --output {output} 2>&1>{log}
         """
@@ -369,6 +371,7 @@ else
 fi
         """
 
+
 rule mtb_annotate_deletions:
     input:
         bed=OUT + "/mtb_typing/annotated_deletions/raw/{sample}.tsv",
@@ -401,6 +404,35 @@ else
     2>&1>{log}
 fi
         """
+
+
+rule mtb_annotate_indel_list_resistance_positions:
+    input:
+        tsv=OUT + "/mtb_typing/annotated_variants/raw/{sample}.tsv",
+        indel_gene_list=lambda wildcards: SAMPLES[wildcards.sample]["indel_gene_list"],
+    output:
+        tsv=OUT + "/mtb_typing/annotated_indels/{sample}.tsv",
+    params:
+        merge_cols="CHROM,POS",
+        keep_cols=lambda wildcards: SAMPLES[wildcards.sample][
+            "resistance_variants_columns"
+        ],
+    log:
+        OUT + "/log/mtb_annotate_indel_list_resistance_positions/{sample}.log",
+    message:
+        "Annotating indels with AMR for {wildcards.sample}"
+    threads: config["threads"]["other"]
+    resources:
+        mem_gb=config["mem_gb"]["other"],
+    shell:
+        """
+python workflow/scripts/postprocess_indel_table.py \
+--input {input.tsv} \
+--reference_data {input.indel_gene_list} \
+--output {output} \
+2>&1>{log}
+        """
+
 
 # rule mtb_deletions_to_table:
 #     input:

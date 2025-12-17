@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.7.0](https://github.com/RIVM-bioinformatics/juno-variant-typing/compare/v0.6.0...v0.7.0) (2025-12-17)
+
+
+### Features
+
+* report indels in selected genes in resistance output ([bc8045d](https://github.com/RIVM-bioinformatics/juno-variant-typing/commit/bc8045dcfe4cb96dfb157960d575f0eec29fa25a))
+
+
+### Bug Fixes
+
+* add indel list variants to annotated variants ([32903f4](https://github.com/RIVM-bioinformatics/juno-variant-typing/commit/32903f4182e61903db0cb8f074785b484040d78b))
+* code cleanup ([51ff0b4](https://github.com/RIVM-bioinformatics/juno-variant-typing/commit/51ff0b4daaffd2dbfb70fc77f87ef11cece455b0))
+* decouple the indel list genes from annotated variants and create separate output them ([524f415](https://github.com/RIVM-bioinformatics/juno-variant-typing/commit/524f4159a8dd0b7dadb1b4d55574c89878f7732a))
+
 ## [0.6.0](https://github.com/RIVM-bioinformatics/juno-variant-typing/compare/v0.5.2...v0.6.0) (2025-11-05)
 
 
